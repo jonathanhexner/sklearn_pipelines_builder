@@ -1,0 +1,81 @@
+run_name: custom_transformer_feature_engine_rfe
+optimization:
+  optimizer: optuna
+  n_trials: 2
+validation:
+  n_folds: 5
+scoring: 'accuracy'
+output_folder: D:\Kaggle\playground-series-s4e11\output
+train_set: D:\Kaggle\playground-series-s4e11\train.csv
+test_set: D:\Kaggle\playground-series-s4e11\test.csv
+response: Depression
+prediction_type: binary
+output_file: custom_transformer_accuracy.csv
+output_columns: id
+all_data_pipe_lines_steps: []
+pipe_line_steps:
+  - element_type: kaggle_depression_transformer
+  - element_type: rare_value_transform
+  - element_type: drop_columns
+    columns: id,Name
+  - element_type: label_encoder
+
+  - element_type: select_best_imputer
+    imputation_methods:
+    - element_type: rfe
+      model_name: linear_regression
+      model_type: linear_regression
+      max_features: 3
+    - element_type: imputation
+      imputation_type: prediction_pipeline
+      model_name: ridge_regression_ohe
+      model_type: ridge
+    - element_type: imputation
+      imputation_type: prediction_pipeline
+      model_name: ridge_regression_drop_str
+      model_type: ridge
+    - element_type: imputation
+      imputation_type: prediction_pipeline
+      model_name: decision_tree
+      model_type: decision_tree
+      model_config:
+        max_depth: 3
+    - element_type: imputation
+      imputation_type: prediction_pipeline
+      model_name: mean_imputer
+      model_type: mean
+    - element_type: imputation
+      imputation_type: prediction_pipeline
+      model_name: most_frequent
+      model_type: most_frequent
+    - element_type: imputation
+      imputation_type: prediction_pipeline
+      model_name: knn_label_encoding
+      model_type: knn
+      max_features: 10
+    - element_type: imputation
+      imputation_type: prediction_pipeline
+      model_name: knn_one_hot_encoding_5
+      model_type: knn
+      max_features: 5
+  - element_type: simple_operation
+    element_name: feature_tools
+    operation_type: feature_tools
+    config:
+      trans_primitives: ["add_numeric", "multiply_numeric"]
+      max_depth: 2
+  - element_type: simple_operation
+    element_name: feature_engine_rfe
+    operation_type: feature_engine_rfe
+    threshold: 0.000001
+    model_config:
+      model_type: catboost_classifier # gradient_boosting_classifier      
+final_step:
+  element_type: simple_operation
+  element_name: optuna_optimized_catboost
+  operation_type: optuna
+  model_name: catboost
+
+  
+  
+
