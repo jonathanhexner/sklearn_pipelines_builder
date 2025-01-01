@@ -1,5 +1,5 @@
 import copy
-
+import os
 import optuna
 from optuna.pruners import MedianPruner, HyperbandPruner, NopPruner
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -8,6 +8,8 @@ from sklearn_pipelines_builder.utils.logger import logger
 from sklearn_pipelines_builder.optuna_objectives.ObjectiveFactory import ObjectiveFactory
 from sklearn_pipelines_builder.SingletonContainer import SingleContainer
 import mlflow
+
+global_config = Config()
 
 
 class OptunaWrapper(BaseEstimator, TransformerMixin):
@@ -28,6 +30,7 @@ class OptunaWrapper(BaseEstimator, TransformerMixin):
         """
         self.config = config
         self.model_name = config.get("model_name")
+        self.study_name = config.get("study_name")
         self.param_distributions = config.get("param_distributions", {})
         self.cv = config.get("cv", 3)
         self.n_trials = config.get("n_trials", 2)
@@ -36,6 +39,10 @@ class OptunaWrapper(BaseEstimator, TransformerMixin):
         self.pruner = self._get_pruner(config.get("pruner", "median"), config.get("pruner_config", {}))
         self.best_params_ = None
         self.best_model_ = None
+        self.storage = None
+        self.storage_type = config.get('storage_type')
+        if self.storage_type == 'sqlite':
+            self.storage = f"sqlite:///{os.path.join(global_config.get('output_folder'), 'OptunaStuday.db')}"
 
     def _get_pruner(self, pruner_name, pruner_config):
         """
@@ -73,12 +80,15 @@ class OptunaWrapper(BaseEstimator, TransformerMixin):
 
         # Create and optimize the study
         study = optuna.create_study(
+            study_name=self.study_name,
             direction="maximize",
             sampler=optuna.samplers.TPESampler(seed=self.random_state),
             pruner=self.pruner,
         )
         study.optimize(lambda trial: objective(trial, X, y), n_trials=self.n_trials)
-
+        if self.storage_type == 'csv':
+            df = study.trials_dataframe()
+            df.to_csv(os.path.join(global_config.get('output_folder'), 'OptunaStudy.csv'), index=False)
         # Save the best parameters and model
         self.best_params_ = study.best_params
         mlflow.log_params(self.best_params_)

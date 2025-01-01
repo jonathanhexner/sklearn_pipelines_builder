@@ -16,6 +16,7 @@ class RareValueTransformer(BaseEstimator, TransformerMixin):
         self.placeholder = config.get("placeholder", "Rare")
         self.common_values_ = {}
         self.config = config
+        self.string_columns_ = None
 
     def fit(self, X, y=None):
         """

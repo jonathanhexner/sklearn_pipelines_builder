@@ -21,7 +21,7 @@ class RedirectHandler(logging.Handler):
 
 
 
-class AutoGluon(BaseEstimator, TransformerMixin):
+class AutoGluonWrapper(BaseEstimator, TransformerMixin):
     def __init__(self, config=None):
         """
         AutoGluon wrapper for Scikit-learn compatibility.

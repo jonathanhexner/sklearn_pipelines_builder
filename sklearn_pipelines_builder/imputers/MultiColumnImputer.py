@@ -84,7 +84,7 @@ class MultiColumnImputer(BaseEstimator, TransformerMixin):
             config = copy.deepcopy(self.actual_imputer_config)
             config.update({'column': column})
             features_for_imputation = self._get_features_for_imputation(X, column)
-            pipeline = ElementFactory().create(config)
+            pipeline = ElementFactory().create_pipe_line(config)
             pipeline.fit(X[features_for_imputation], X[column])
             self.pipelines[column] = pipeline
 

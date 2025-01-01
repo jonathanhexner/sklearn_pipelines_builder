@@ -8,7 +8,7 @@ class CatBoostWrapper(BaseEstimator, TransformerMixin):
         self.config = config
         self.model = None
         self.model_params = dict(iterations=500, verbose=False)
-        self.model_params.update(config)
+        self.model_params.update(config.get("model_params", {}))
         self.string_features = []
         self.classes_ = []
         self.feature_importances_ = None

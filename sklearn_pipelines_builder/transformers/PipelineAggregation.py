@@ -48,7 +48,7 @@ class PipelineAggregation(BaseEstimator, TransformerMixin):
             for field in self.copy_fields:
                 element_config.update({field: self.config[field]})
             # Create element using ElementFactory
-            element = ElementFactory().create(element_config)
+            element = ElementFactory().create_pipe_line(element_config)
             steps.append((element_type, element))
         self.pipeline = Pipeline(steps)
 

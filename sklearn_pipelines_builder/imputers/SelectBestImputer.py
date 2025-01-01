@@ -1,27 +1,11 @@
 import copy
-from typing import List
-
 import os
-import pickle
-import numpy as np
 import pandas as pd
-import scipy
-# from examples.contrastive_excitation_backprop import model
+import dill
+from typing import List
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
-from sklearn.linear_model import Ridge
-from sklearn.impute import SimpleImputer
-from sklearn.compose import ColumnTransformer
-
-
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
-from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import r2_score
-from catboost import CatBoostRegressor
-from sklearn.neighbors import KNeighborsRegressor
 from joblib import dump, load
-
 from sklearn_pipelines_builder.infrastructure.ElementFactory import ElementFactory
 from sklearn_pipelines_builder.utils.logger import logger
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -57,16 +41,19 @@ class SelectBestImputer(BaseEstimator, TransformerMixin):
         X[self.column] = y
         all_results = pd.DataFrame()
         # Prepare training and testing data
-        df_ = X.dropna(subset=[self.column])
-        features = list(set(df_.columns) - set([self.column]))
-        df_train, df_test = self._train_test_split(df_)
-        df_train = pd.concat([df_train, X[X[self.column].isnull()]]).reset_index(drop=True)
+        df_dropna = X.dropna(subset=[self.column])
+        features = list(set(df_dropna.columns) - set([self.column]))
+        df_train, df_test = self._train_test_split(df_dropna)
+        # Why is this needed? Not clear
+        # df_train = pd.concat([df_train, X[X[self.column].isnull()]]).reset_index(drop=True)
 
         # Iterate over imputation methods
         for config in self.imputation_methods:
-            logger.info(f"Testing imputation method: {config['element_type']} for column {self.column}")
+            element_alias = config.get('element_alias', config['element_type'])
+            logger.info(f"Testing imputation for column %s alias %s, name %s:", self.column, element_alias,
+                        config['element_type'])
             config.update({'column': self.column})
-            pipe_line_model = ElementFactory().create(config)
+            pipe_line_model = ElementFactory().create_pipe_line(config)
             pipe_line_model.fit(df_train[features], df_train[self.column])
             pred = pipe_line_model.transform(df_test[features])
             r2 = r2_score(df_test[self.column], pred)
@@ -84,7 +71,8 @@ class SelectBestImputer(BaseEstimator, TransformerMixin):
 
         # Save results and best model
         all_results.to_csv(os.path.join(self.output_folder, f'{self.column}_imputation_results.csv'), index=False)
-        dump(self.best_model, os.path.join(self.output_folder, f'{self.column}_best_model.joblib'), compress=3)
+        with open(os.path.join(self.output_folder, f'{self.column}_best_model.joblib'), "wb") as f_out:
+            dill.dump(self.best_model, f_out)
         return self
 
     def transform(self, X):

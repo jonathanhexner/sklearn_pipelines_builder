@@ -3,10 +3,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import mlflow
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.metrics import get_scorer
 from feature_engine.selection import RecursiveFeatureElimination
 from sklearn_pipelines_builder.infrastructure.Config import Config
-from sklearn_pipelines_builder.factories.ModelFactory import ModelFactory
+from sklearn_pipelines_builder.infrastructure.ElementFactory import ElementFactory
 
 global_config = Config()
 
@@ -23,7 +22,7 @@ class FeatureEngineRfe(BaseEstimator, TransformerMixin):
             - "output_folder": Folder to save the plots.
         """
         self.config = config
-        self.model = ModelFactory().create(config.get("model_config", {}))
+        self.model = ElementFactory().create(config.get("model_config", {}))
         self.threshold = config.get("threshold", 0.0005)
         self.cv = config.get("cv", 2)
         self.output_folder = global_config.output_folder

@@ -1,18 +1,16 @@
-run_name: custom_transformer_feature_engine_rfe
-optimization:
-  optimizer: optuna
-  n_trials: 2
+experiment_name: playground-series-s4e11
+run_name: custom_transformer_feature_engine_autogluon
+
 validation:
   n_folds: 5
 scoring: 'accuracy'
-output_folder: D:\Kaggle\playground-series-s4e11\output
+output_folder: D:\Kaggle\playground-series-s4e11\autogluon_pipeline
 train_set: D:\Kaggle\playground-series-s4e11\train.csv
 test_set: D:\Kaggle\playground-series-s4e11\test.csv
 response: Depression
 prediction_type: class
 output_file: custom_transformer_accuracy.csv
 output_columns: id
-all_data_pipe_lines_steps: []
 pipe_line_steps:
   - element_type: kaggle_depression_transformer
   - element_type: rare_value_transform
@@ -24,26 +22,32 @@ pipe_line_steps:
       element_type: select_best_imputer
       imputation_methods:
         - element_type: pipe_line_aggregation
+          element_alias: knn_regressor_4_features
           elements:
-            - element_type: select_imputer_features
             - element_type: select_k_best
               score_func_name: decision_tree_regressor
-              model_config:
-                k: 4
-            - element_type: knn_regressor              
+              k: 4
+            - element_type: knn_regressor            
         - element_type: pipe_line_aggregation
+          element_alias: decision_tree_regressor_4_features
           elements:
-            - element_type: select_imputer_features
             - element_type: select_k_best
               score_func_name: decision_tree_regressor
-              model_config:
-                k: 4
-            - element_type: decision_tree_regressor                
+              k: 4
+            - element_type: decision_tree_regressor
+              max_depth: 3            
+        - element_type: mean_predictor
+        - element_type: most_frequent
+      
   - element_type: feature_engine_rfe
     threshold: 0.000001
     model_config:
-      model_type: catboost_classifier # gradient_boosting_classifier
+      element_type: catboost_classifier # gradient_boosting_classifier
 final_step:
-  element_type: optuna_model_optimizer
-  model_name: catboost
+  element_type: autogluon
+  presets: ['best_quality']
+  time_limit: 60
+  problem_type: binary
+  
+  
 

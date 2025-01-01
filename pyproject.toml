@@ -21,6 +21,10 @@ dependencies = [
 
 ]
 
+[tool.setuptools]
+packages = ["sklearn_pipelines_builder"]  # Define the package explicitly
+include-package-data = true
+
 [project.optional-dependencies]
 dev = [
     "coverage",  # testing

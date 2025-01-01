@@ -71,7 +71,11 @@ class ElementFactory:
             element_instance = cls(config=config)
 
             # Return a pipeline
-            return Pipeline([(element_type, element_instance)])
+            return element_instance
+
+    def create_pipe_line(self, config):
+        element_type = config.get("element_type")
+        return Pipeline([(element_type, self.create(config))])
 
 # Example usage
 # factory = ElementFactory()
