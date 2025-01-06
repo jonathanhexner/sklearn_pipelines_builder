@@ -2,7 +2,7 @@ import sys
 import os
 import pandas as pd
 import unittest
-from tests.test_utils import get_test_folder, get_results_folder
+from sklearn_pipelines_builder.utils.test_utils import get_test_folder, get_results_folder
 from sklearn_pipelines_builder.utils.basic_utils import create_clean_folder
 from sklearn_pipelines_builder.main import main
 
