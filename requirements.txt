@@ -1,0 +1,15 @@
+scikit-learn
+pandas
+tensorflow
+xgboost
+lightgbm
+catboost
+
+feature-engine
+autogluon
+autofeat
+BorutaShap
+mlflow
+featurewiz
+
+optuna
