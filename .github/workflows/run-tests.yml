@@ -33,12 +33,16 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    # Step 4: Run unit tests and save logs
+    # Step 4: Install package
+    - name: Install the Project
+      run: pip install -e .
+        
+    # Step 5: Run unit tests and save logs
     - name: Run Unit Tests
       run: |
-        pytest --maxfail=5 --disable-warnings | tee pytest_${{ matrix.python-version }}.log
+        pytest --maxfail=0 --disable-warnings | tee pytest_${{ matrix.python-version }}.log
 
-    # Step 5: Always save logs
+    # Step 6: Always save logs
     - name: Save Test Logs
       uses: actions/upload-artifact@v3
       with:
