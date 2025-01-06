@@ -36,11 +36,12 @@ jobs:
     # Step 4: Install package
     - name: Install the Project
       run: pip install -e .
-        
+
     # Step 5: Run unit tests and save logs
     - name: Run Unit Tests
       run: |
-        pytest --maxfail=0 --disable-warnings | tee pytest_${{ matrix.python-version }}.log
+        pytest -v | tee pytest_${{ matrix.python-version }}.log
+        test ${PIPESTATUS[0]} -eq 0
 
     # Step 6: Always save logs
     - name: Save Test Logs
