@@ -12,5 +12,5 @@ autofeat
 BorutaShap
 mlflow
 featurewiz
-
+pytest
 optuna
