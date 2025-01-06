@@ -1,16 +1,16 @@
-from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.feature_selection import SelectKBest
 from sklearn_pipelines_builder.utils.logger import logger
 from sklearn_pipelines_builder.infrastructure.Config import Config
 from sklearn_pipelines_builder.feature_selection.ScoreFunctionFactory import ScoreFunctionFactory
-import os
+from sklearn_pipelines_builder.infrastructure.BaseConfigurableTransformer import BaseConfigurableTransformer
 
 # Global configuration
 global_config = Config()
 
 
-class CustomSelectKBest(BaseEstimator, TransformerMixin):
+class CustomSelectKBest(BaseConfigurableTransformer):
     def __init__(self, config=None):
+        super().__init__(config)
         # Default configuration
         default_config = {
             'score_func_name': 'f_classif',  # Default to SelectKBest's default

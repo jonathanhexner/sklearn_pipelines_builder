@@ -2,7 +2,7 @@ import os
 import logging
 import pandas as pd
 from tpot import TPOTClassifier
-from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn_pipelines_builder.infrastructure.BaseConfigurableTransformer import BaseConfigurableTransformer
 from sklearn_pipelines_builder.utils.logger import logger
 from sklearn_pipelines_builder.SingletonContainer import SingleContainer
 from sklearn_pipelines_builder.infrastructure.Config import Config
@@ -11,7 +11,7 @@ from sklearn_pipelines_builder.factories.MultiColumnElementFactory import create
 # Global configuration
 global_config = Config()
 
-class TPOTWrapper(BaseEstimator, TransformerMixin):
+class TPOTWrapper(BaseConfigurableTransformer):
     def __init__(self, config=None):
         """
         TPOT wrapper for Scikit-learn compatibility.

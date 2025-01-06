@@ -1,4 +1,4 @@
-from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn_pipelines_builder.infrastructure.BaseConfigurableTransformer import BaseConfigurableTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.utils.validation import check_is_fitted
@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 
-class CustomImputer(BaseEstimator, TransformerMixin):
+class CustomImputer(BaseConfigurableTransformer):
     def __init__(self, estimator, columns=None):
         """
         Initialize with an estimator (imputer or model) and the columns to apply it to.
@@ -16,7 +16,7 @@ class CustomImputer(BaseEstimator, TransformerMixin):
         self.estimator = estimator
         self.columns = columns  # Columns to apply imputation to
 
-    def fit(self, X, y=None):
+    def fit(self, X, y=None):  # pylint: disable=unused-argument
         # Check if columns are specified, otherwise use all columns
         if self.columns is None:
             self.columns = X.columns

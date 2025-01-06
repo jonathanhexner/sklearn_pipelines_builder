@@ -1,10 +1,10 @@
 import pandas as pd
 import logging
-from sklearn.base import BaseEstimator, TransformerMixin
 from borutashap import BorutaShap
 from sklearn_pipelines_builder.utils.logger import logger
 from sklearn_pipelines_builder.SingletonContainer import SingleContainer
 from sklearn_pipelines_builder.infrastructure.Config import Config
+from sklearn_pipelines_builder.infrastructure.BaseConfigurableTransformer import BaseConfigurableTransformer
 
 global_config = Config()
 
@@ -13,7 +13,7 @@ class RedirectHandler(logging.Handler):
     def emit(self, record):
         logger.handle(record)  # Redirect to your custom logger
 
-class BorutaShapWrapper(BaseEstimator, TransformerMixin):
+class BorutaShapWrapper(BaseConfigurableTransformer):
     def __init__(self, config=None):
         """
         BorutaShap wrapper for Scikit-learn compatibility.
@@ -21,7 +21,7 @@ class BorutaShapWrapper(BaseEstimator, TransformerMixin):
         Parameters:
         - config (dict): Configuration dictionary for BorutaShap.
         """
-        self.config = config or {}
+        super().__init__(config)
         self.model = self.config.get("model", None)  # Pass the model for feature importance
         self.target = self.config.get("target", SingleContainer.response)
         self.train_samples = self.config.get("train_samples", 0.8)  # Default 80% of samples for training

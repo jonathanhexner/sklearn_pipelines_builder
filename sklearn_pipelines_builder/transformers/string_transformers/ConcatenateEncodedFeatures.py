@@ -1,8 +1,8 @@
-from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn_pipelines_builder.infrastructure.BaseConfigurableTransformer import BaseConfigurableTransformer
 import pandas as pd
 from scipy.sparse import issparse
 
-class ConcatenateEncodedFeatures(BaseEstimator, TransformerMixin):
+class ConcatenateEncodedFeatures(BaseConfigurableTransformer):
     def __init__(self, original_columns=None, encoded_columns=None):
         """
         Initialize the transformer with the original and encoded column names.

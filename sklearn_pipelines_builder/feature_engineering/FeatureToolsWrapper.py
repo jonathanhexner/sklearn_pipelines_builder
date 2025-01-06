@@ -1,19 +1,16 @@
 import os
-import pandas as pd
-from sklearn.base import BaseEstimator, TransformerMixin
 from featuretools import dfs, EntitySet, calculate_feature_matrix
-# from featuretools.entityset import EntitySet
 from sklearn_pipelines_builder.utils.logger import logger
 from sklearn_pipelines_builder.SingletonContainer import SingleContainer
 from sklearn_pipelines_builder.infrastructure.Config import Config
-import h2o
-from h2o.automl import H2OAutoML
+from sklearn_pipelines_builder.infrastructure.BaseConfigurableTransformer import BaseConfigurableTransformer
+
 
 global_config = Config()
 
 # Featuretools Wrapper
-class FeatureToolsWrapper(BaseEstimator, TransformerMixin):
-    def __init__(self, config={}):
+class FeatureToolsWrapper(BaseConfigurableTransformer):
+    def __init__(self, config=None):
         """
         FeatureTools wrapper for Scikit-learn compatibility.
 
@@ -22,9 +19,10 @@ class FeatureToolsWrapper(BaseEstimator, TransformerMixin):
         """
         self.default_config = {"max_depth": 2}
         self.default_config.update(config.get('config', {}))
+        self.feature_defs = None
         self.selected_features = None
 
-    def fit(self, X, y=None):
+    def fit(self, X, y=None):  # pylint: disable=unused-argument
         """
         Fit the FeatureTools feature engineering process.
 
@@ -44,15 +42,14 @@ class FeatureToolsWrapper(BaseEstimator, TransformerMixin):
         #     entityset=es, target_dataframe_name="data", max_depth=self.max_depth,
         #     trans_primitives=["add_numeric", "multiply_numeric"],
         # )
-        feature_matrix, feature_defs = dfs(
+        feature_matrix, self.feature_defs = dfs(
             entityset=es, target_dataframe_name="data", **self.default_config
         )
 
-        self.feature_defs = feature_defs
         self.selected_features = feature_matrix.columns.tolist()
 
         # Log key results
-        logger.info(f"Generated features: {self.selected_features}")
+        logger.info("Generated features: %s", self.selected_features)
 
         # Save results to MLflow
         if SingleContainer.mlflow_run_id:

@@ -25,7 +25,7 @@ def objective_catboost(trial, X, y):
     # Set scoring as AUC
 
     # scoring = "roc_auc"
-    model = CatBoostWrapper(model_params)
+    model = CatBoostWrapper({'model_config': model_params})
     # score = np.mean(my_cross_val_score(X, y, pipeline, n_splits=3))
     cv_scores = cross_val_score( X, y, model, cv=cv, scoring=global_config.scoring)
     trial.set_user_attr("trained_model", model)

@@ -7,15 +7,20 @@ class Config:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
+            cls._instance._config = {}
         return cls._instance
 
-    def load_config(self, config_path):
+
+    def load_config(self, config_path, config_override):
         """Load the YAML config file."""
         if not os.path.exists(config_path):
             raise FileNotFoundError(f"Config file {config_path} not found.")
 
         with open(config_path, 'r') as file:
             self._config = yaml.safe_load(file)
+        if config_override is not None:
+            self._config.update(config_override)
+        print(self._config['output_folder'])
 
     def get(self, key, default=None)->{}:
         """Retrieve a configuration value, with optional default."""

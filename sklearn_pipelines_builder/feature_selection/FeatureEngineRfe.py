@@ -2,14 +2,14 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import mlflow
-from sklearn.base import BaseEstimator, TransformerMixin
 from feature_engine.selection import RecursiveFeatureElimination
 from sklearn_pipelines_builder.infrastructure.Config import Config
 from sklearn_pipelines_builder.infrastructure.ElementFactory import ElementFactory
+from sklearn_pipelines_builder.infrastructure.BaseConfigurableTransformer import BaseConfigurableTransformer
 
 global_config = Config()
 
-class FeatureEngineRfe(BaseEstimator, TransformerMixin):
+class FeatureEngineRfe(BaseConfigurableTransformer):
     def __init__(self, config):
         """
         Initialize the transformer with the given configuration.
@@ -21,13 +21,13 @@ class FeatureEngineRfe(BaseEstimator, TransformerMixin):
             - "cv": Number of cross-validation folds.
             - "output_folder": Folder to save the plots.
         """
-        self.config = config
+        super().__init__(config)
         self.model = ElementFactory().create(config.get("model_config", {}))
         self.threshold = config.get("threshold", 0.0005)
         self.cv = config.get("cv", 2)
         self.output_folder = global_config.output_folder
         os.makedirs(self.output_folder, exist_ok=True)
-
+        self.rfe_selector = None
         # Use scoring from the global Config
         self.scorer = global_config.scoring
 

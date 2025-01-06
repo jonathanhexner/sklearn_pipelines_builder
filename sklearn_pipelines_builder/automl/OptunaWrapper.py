@@ -1,18 +1,18 @@
 import copy
 import os
 import optuna
+import mlflow
 from optuna.pruners import MedianPruner, HyperbandPruner, NopPruner
-from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn_pipelines_builder.infrastructure.BaseConfigurableTransformer import BaseConfigurableTransformer
 from sklearn_pipelines_builder.infrastructure.Config import Config
 from sklearn_pipelines_builder.utils.logger import logger
 from sklearn_pipelines_builder.optuna_objectives.ObjectiveFactory import ObjectiveFactory
-from sklearn_pipelines_builder.SingletonContainer import SingleContainer
-import mlflow
+
 
 global_config = Config()
 
 
-class OptunaWrapper(BaseEstimator, TransformerMixin):
+class OptunaWrapper(BaseConfigurableTransformer):
     def __init__(self, config):
         """
         Wrapper for Optuna hyperparameter optimization compatible with Scikit-learn API.
@@ -28,7 +28,7 @@ class OptunaWrapper(BaseEstimator, TransformerMixin):
             - pruner (str): Type of Optuna pruner to use.
             - pruner_config (dict): Parameters for the pruner.
         """
-        self.config = config
+        super().__init__(config)
         self.model_name = config.get("model_name")
         self.study_name = config.get("study_name")
         self.param_distributions = config.get("param_distributions", {})
@@ -61,8 +61,7 @@ class OptunaWrapper(BaseEstimator, TransformerMixin):
             return HyperbandPruner(**pruner_config)
         elif pruner_name == "none":
             return NopPruner()
-        else:
-            raise ValueError(f"Unsupported pruner: {pruner_name}")
+        raise ValueError(f"Unsupported pruner: {pruner_name}")
 
     def fit(self, X, y):
         """
@@ -72,7 +71,7 @@ class OptunaWrapper(BaseEstimator, TransformerMixin):
         - X: Features.
         - y: Target.
         """
-        logger.info(f"Starting Optuna optimization for {self.model_name}")
+        logger.info("Starting Optuna optimization for %s", self.model_name)
         mlflow.log_param("model_name", self.model_name)
 
         # Create the objective using the factory
@@ -92,12 +91,12 @@ class OptunaWrapper(BaseEstimator, TransformerMixin):
         # Save the best parameters and model
         self.best_params_ = study.best_params
         mlflow.log_params(self.best_params_)
-        logger.info(f"Best parameters found: {self.best_params_}")
+        logger.info("Best parameters found: %s", self.best_params_)
         params = {'verbose': False}
         params.update(copy.deepcopy(self.best_params_))
         self.best_model_ = objective.train_best_model(params, X, y)
         mlflow.log_metric("best_cv_score", study.best_value)
-        logger.info(f"Best CV score: {study.best_value}")
+        logger.info("Best CV score: .2%f", study.best_value)
         return self
 
     def transform(self, X):

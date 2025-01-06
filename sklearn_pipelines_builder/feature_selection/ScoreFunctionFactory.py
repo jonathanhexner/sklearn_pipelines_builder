@@ -53,4 +53,3 @@ class ScoreFunctionFactory:
         tree.fit(X, y)
         return tree.feature_importances_
 
-score_fun = ScoreFunctionFactory().create('mutual_info_classification')

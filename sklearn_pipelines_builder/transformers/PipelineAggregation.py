@@ -1,12 +1,12 @@
 import copy
 
 from sklearn.pipeline import Pipeline
-from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn_pipelines_builder.infrastructure.BaseConfigurableTransformer import BaseConfigurableTransformer
 from sklearn_pipelines_builder.infrastructure.ElementFactory import ElementFactory
 from sklearn_pipelines_builder.utils.logger import logger
 
-class PipelineAggregation(BaseEstimator, TransformerMixin):
-    def __init__(self, config):
+class PipelineAggregation(BaseConfigurableTransformer):
+    def __init__(self, config=None):
         """
         Generic wrapper for assembling a pipeline based on a configuration dictionary.
 
@@ -20,7 +20,7 @@ class PipelineAggregation(BaseEstimator, TransformerMixin):
               ]
           }
         """
-        self.config = config
+        super().__init__(config)
         self.pipeline = None
         # TODO: Reconsider if this is the right way to pass this parameter initially used for imputation
         self.copy_fields = ['column']

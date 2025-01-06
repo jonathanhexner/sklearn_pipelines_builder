@@ -2,25 +2,22 @@ import copy
 import os
 import pandas as pd
 import dill
-from typing import List
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
-from joblib import dump, load
 from sklearn_pipelines_builder.infrastructure.ElementFactory import ElementFactory
 from sklearn_pipelines_builder.utils.logger import logger
-from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn_pipelines_builder.infrastructure.BaseConfigurableTransformer import BaseConfigurableTransformer
 from sklearn_pipelines_builder.SingletonContainer import SingleContainer
 from sklearn_pipelines_builder.infrastructure.Config import Config
 global_config = Config()
-# from my_utils import calc_measures
 single_container = SingleContainer()
 
 
-class SelectBestImputer(BaseEstimator, TransformerMixin):
-    def __init__(self, config={}, output_folder=None):
-        self.config = copy.deepcopy(config)
+class SelectBestImputer(BaseConfigurableTransformer):
+    def __init__(self, config=None):
+        super(SelectBestImputer, self).__init__(config)
         self.column = config.get('column')
-        self.output_folder = output_folder or global_config.output_folder
+        self.output_folder = global_config.output_folder
         self.imputation_methods = config.get('imputation_methods', [])
         self.best_model = None
         self.best_r2 = None
@@ -34,9 +31,9 @@ class SelectBestImputer(BaseEstimator, TransformerMixin):
         return df_train, df_test
 
     def fit(self, X, y):
-        logger.info(f"Starting imputation for column: {self.column}")
+        logger.info("Starting imputation for column: %s", self.column)
         if not y.isnull().any():
-            logger.info(f"Skipping column {self.column}: no missing values.")
+            logger.info("Skipping column %s: no missing values.", self.column)
             return self
         X[self.column] = y
         all_results = pd.DataFrame()
@@ -50,7 +47,7 @@ class SelectBestImputer(BaseEstimator, TransformerMixin):
         # Iterate over imputation methods
         for config in self.imputation_methods:
             element_alias = config.get('element_alias', config['element_type'])
-            logger.info(f"Testing imputation for column %s alias %s, name %s:", self.column, element_alias,
+            logger.info("Testing imputation for column %s alias %s, name %s:", self.column, element_alias,
                         config['element_type'])
             config.update({'column': self.column})
             pipe_line_model = ElementFactory().create_pipe_line(config)
@@ -63,7 +60,7 @@ class SelectBestImputer(BaseEstimator, TransformerMixin):
                 self.best_r2 = r2
                 self.best_model = pipe_line_model
 
-            logger.info(f"Column {self.column}:  achieved R2: {r2}")
+            logger.info("Column %s:  achieved R2: %s", self.column, r2)
 
             # Save the results to disk
             df_results = pd.DataFrame({'Feature': self.column, 'Model_Name': config['element_type'], 'R2': r2}, index=[0])
@@ -77,9 +74,9 @@ class SelectBestImputer(BaseEstimator, TransformerMixin):
 
     def transform(self, X):
         if self.best_model is None:
-            raise ValueError(f"The imputer for column '{self.column}' has not been fitted yet.")
+            raise ValueError("The imputer for column %s has not been fitted yet.", self.column)
         if self.column not in X.columns:
-            raise ValueError(f"Column '{self.column}' not found in input DataFrame.")
+            raise ValueError(f"Column %s not found in input DataFrame.", self.column)
 
         null_indices = X[self.column].isnull()
         if null_indices.any():

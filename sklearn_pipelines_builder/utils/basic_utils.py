@@ -1,4 +1,17 @@
+import os
+import shutil
 import pandas as pd
+
+
+def create_clean_folder(folder_path):
+    """
+    Creates a folder. If it already exists, removes it and recreates it.
+
+    :param folder_path: Path of the folder to create.
+    """
+    if os.path.exists(folder_path):
+        shutil.rmtree(folder_path)  # Remove the existing folder and its contents
+    os.makedirs(folder_path)  # Create the folder again
 
 
 def remove_from_list(list1, list2):
@@ -33,7 +46,7 @@ def load_dataset(file_path, **kwargs):
     - DataFrame: Loaded dataset as a pandas DataFrame.
     """
     # Determine file type by extension
-    if file_path.endswith('.csv'):
+    if file_path.endswith('.csv') or file_path.endswith('zip'):
         return pd.read_csv(file_path, **kwargs)
     elif file_path.endswith('.parquet'):
         return pd.read_parquet(file_path, **kwargs)

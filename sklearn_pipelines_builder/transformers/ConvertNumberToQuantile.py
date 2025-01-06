@@ -1,11 +1,11 @@
 import copy
-from sklearn.base import TransformerMixin, BaseEstimator
+from sklearn_pipelines_builder.infrastructure.BaseConfigurableTransformer import BaseConfigurableTransformer
 from sklearn.preprocessing import QuantileTransformer
 
 
-class ConvertNumberToQuantile(BaseEstimator, TransformerMixin):
-    def __init__(self, config={}):
-        self.config = copy.deepcopy(config)
+class ConvertNumberToQuantile(BaseConfigurableTransformer):
+    def __init__(self, config=None):
+        self.config = copy.deepcopy(config) if config is not None else {}
         self.feature_name = config.get('feature_name')
         self.transformer = QuantileTransformer(output_distribution='normal')
 

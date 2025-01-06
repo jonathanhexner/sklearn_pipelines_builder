@@ -1,11 +1,11 @@
 import numpy as np
 import pandas as pd
-from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn_pipelines_builder.infrastructure.BaseConfigurableTransformer import BaseConfigurableTransformer
 from sklearn_pipelines_builder.SingletonContainer import SingleContainer
 from sklearn_pipelines_builder.utils.basic_utils import remove_from_list
 from sklearn_pipelines_builder.utils.collect_info import collect_info
 
-class TransformerKaggleDepression(BaseEstimator, TransformerMixin):
+class TransformerKaggleDepression(BaseConfigurableTransformer):
     def __init__(self, config={}):
         self.value_counts_ = {}
         self.config = config

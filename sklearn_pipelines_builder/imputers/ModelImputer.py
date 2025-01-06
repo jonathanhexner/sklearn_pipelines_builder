@@ -1,10 +1,11 @@
 import numpy as np
-from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn_pipelines_builder.infrastructure.BaseConfigurableTransformer import BaseConfigurableTransformer
 from sklearn_pipelines_builder.infrastructure.ElementFactory import ElementFactory
 
 
-class ModelImputer(BaseEstimator, TransformerMixin):
-    def __init__(self, config={}):
+class ModelImputer(BaseConfigurableTransformer):
+    def __init__(self, config=None):
+        super().__init__(config)
         self.model = ElementFactory().create(config.get("model_config", {}))
 
     def fit(self, X, y=None):

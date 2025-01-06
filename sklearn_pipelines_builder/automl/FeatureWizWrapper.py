@@ -1,11 +1,12 @@
+import logging
 import pandas as pd
-from sklearn.base import BaseEstimator, TransformerMixin
 from featurewiz import FeatureWiz  # Ensure featurewiz is installed
 from sklearn_pipelines_builder.utils.logger import logger
 from sklearn_pipelines_builder.SingletonContainer import SingleContainer
+from sklearn_pipelines_builder.infrastructure.BaseConfigurableTransformer import BaseConfigurableTransformer
 
 
-class FeatureWizWrapper(BaseEstimator, TransformerMixin):
+class FeatureWizWrapper(BaseConfigurableTransformer):
     def __init__(self, config=None):
         """
         Featurewiz wrapper for Scikit-learn compatibility.
@@ -13,7 +14,7 @@ class FeatureWizWrapper(BaseEstimator, TransformerMixin):
         Parameters:
         - config (dict): Configuration dictionary for Featurewiz.
         """
-        self.config = config or {}
+        super().__init__(config)
         self.target = self.config.get("target", SingleContainer.response)
         self.corr_limit = self.config.get("corr_limit", 0.70)
         self.feature_engg = self.config.get("feature_engg", None)
@@ -37,11 +38,10 @@ class FeatureWizWrapper(BaseEstimator, TransformerMixin):
         elif self.target not in X.columns:
             raise ValueError(f"The target column '{self.target}' must be included in the dataset or passed as `y`.")
 
-        logger.info(f"Starting Featurewiz fit with target: {self.target}")
-        logger.info(f"Using corr_limit={self.corr_limit} and feature_engg={self.feature_engg}")
+        logger.info("Starting Featurewiz fit with target: %s", self.target)
+        logger.info("Using corr_limit=%.2f and feature_engg=%s", self.corr_limit, self.feature_engg)
 
         # Propagate logs from featurewiz to our logger
-        import logging
         featurewiz_logger = logging.getLogger("featurewiz")
         featurewiz_logger.setLevel(logging.INFO)
         for handler in logger.handlers:
@@ -53,7 +53,7 @@ class FeatureWizWrapper(BaseEstimator, TransformerMixin):
                                       corr_limit=self.corr_limit,
                                       ae_options={})
         self.feature_wiz.fit(X, y)
-        logger.info(f"Featurewiz selected features: {self.feature_wiz.features}")
+        logger.info("Featurewiz selected features: %s", self.feature_wiz.features)
 
         # Log the results to MLflow
         if SingleContainer.mlflow_run_id:

@@ -1,13 +1,13 @@
 import copy
-from sklearn.base import TransformerMixin, BaseEstimator
+from sklearn_pipelines_builder.infrastructure.BaseConfigurableTransformer import BaseConfigurableTransformer
 
 
-class ConvertFeatureToString(BaseEstimator, TransformerMixin):
-    def __init__(self, config={}):
-        self.config = copy.deepcopy(config)
+class ConvertFeatureToString(BaseConfigurableTransformer):
+    def __init__(self, config=None):
+        super().__init__(config)
         self.features = config.get('features')
 
-    def fit(self, X, y=None):
+    def fit(self, X, y=None):  # pylint: disable=unused-argument
         return self
 
     def transform(self, X):

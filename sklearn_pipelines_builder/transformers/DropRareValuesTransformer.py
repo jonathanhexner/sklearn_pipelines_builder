@@ -1,9 +1,9 @@
 import pandas as pd
-from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn_pipelines_builder.infrastructure.BaseConfigurableTransformer import BaseConfigurableTransformer
 
 
-class DropRareValuesTransformer(BaseEstimator, TransformerMixin):
-    def __init__(self, config={}):
+class DropRareValuesTransformer(BaseConfigurableTransformer):
+    def __init__(self, config=None):
         """
         Initialize with the columns to check and the rarity threshold.
 
@@ -11,7 +11,7 @@ class DropRareValuesTransformer(BaseEstimator, TransformerMixin):
         - columns: List of columns to check for rare values.
         - threshold: Minimum frequency (relative) below which rows are dropped.
         """
-        self.config = config
+        super().__init__(config)
         self.columns = config.get('columns')
         self.threshold = config.get('threshold', 0.001)
         self.value_counts_ = {}

@@ -1,19 +1,19 @@
 import copy
-from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn_pipelines_builder.infrastructure.BaseConfigurableTransformer import BaseConfigurableTransformer
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 import pandas as pd
 
 
-class NormalizeAndPCA(BaseEstimator, TransformerMixin):
+class NormalizeAndPCA(BaseConfigurableTransformer):
     def __init__(self, config={}):
-        self.config = copy.deepcopy(config)
+        super().__init__(config)
         self.features = config.get('features')  # List of features to transform
         self.n_components = config.get('n_components', 3)  # Number of PCA components
         self.scaler = StandardScaler()
         self.pca = PCA(n_components=self.n_components)
 
-    def fit(self, X, y=None):
+    def fit(self, X, y=None):  # pylint: disable=unused-argument
         # Normalize and fit PCA on specified features
         X_selected = X[self.features]
         X_normalized = self.scaler.fit_transform(X_selected)

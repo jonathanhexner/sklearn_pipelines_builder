@@ -1,11 +1,11 @@
 import pandas as pd
-from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn_pipelines_builder.infrastructure.BaseConfigurableTransformer import BaseConfigurableTransformer
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OrdinalEncoder
 from sklearn_pipelines_builder.SingletonContainer import SingleContainer
 
 
-class ConfigurableLabelEncoderTransformer(BaseEstimator, TransformerMixin):
+class ConfigurableLabelEncoderTransformer(BaseConfigurableTransformer):
     def __init__(self, config):
         """
         Initialize the transformer with a configuration dictionary.

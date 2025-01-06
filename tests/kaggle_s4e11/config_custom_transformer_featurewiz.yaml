@@ -11,6 +11,7 @@ response: Depression
 prediction_type: class
 output_file: custom_transformer_accuracy.csv
 output_columns: id
+all_data_pipe_lines_steps: []
 pipe_line_steps:
   - element_type: kaggle_depression_transformer
   - element_type: rare_value_transform
@@ -38,7 +39,9 @@ pipe_line_steps:
               max_depth: 3            
         - element_type: mean_predictor
         - element_type: most_frequent
-      
+  - element_type: featurewiz
+    corr_limit: 0.7
+    feature_engg: ["groupby",'target','interactions']
   - element_type: feature_engine_rfe
     threshold: 0.000001
     model_config:

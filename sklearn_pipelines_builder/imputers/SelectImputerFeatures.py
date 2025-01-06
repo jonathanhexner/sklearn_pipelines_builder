@@ -2,7 +2,7 @@ import numpy as np
 import copy
 
 from sklearn_pipelines_builder.infrastructure.ElementFactory import ElementFactory
-from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn_pipelines_builder.infrastructure.BaseConfigurableTransformer import BaseConfigurableTransformer
 from sklearn_pipelines_builder.utils.logger import logger
 from sklearn_pipelines_builder.infrastructure.Config import Config
 from sklearn_pipelines_builder.SingletonContainer import SingleContainer
@@ -13,7 +13,7 @@ import os
 global_config = Config()
 
 
-class SelectImputerFeatures(BaseEstimator, TransformerMixin):
+class SelectImputerFeatures(BaseConfigurableTransformer):
     def __init__(self, config=None):
         self.config = config
         self.column = self.config.get('column')

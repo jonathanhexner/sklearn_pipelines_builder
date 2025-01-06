@@ -1,0 +1,51 @@
+experiment_name: playground-series-s4e11
+run_name: custom_transformer_feature_engine_rfe
+
+validation:
+  n_folds: 5
+scoring: 'accuracy'
+output_folder: D:\Kaggle\playground-series-s4e11\output
+train_set: D:\Kaggle\playground-series-s4e11\train.csv
+test_set: D:\Kaggle\playground-series-s4e11\test.csv
+response: Depression
+prediction_type: class
+output_file: custom_transformer_accuracy.csv
+output_columns: id
+pipe_line_steps:
+  - element_type: kaggle_depression_transformer
+  - element_type: rare_value_transform
+  - element_type: drop_columns
+    columns: id,Name
+  - element_type: label_encoder
+  - element_type: multi_column_imputer
+    actual_imputer_config:
+      element_type: select_best_imputer
+      imputation_methods:
+        - element_type: pipe_line_aggregation
+          element_alias: knn_regressor_4_features
+          elements:
+            - element_type: select_k_best
+              score_func_name: decision_tree_regressor
+              k: 4
+            - element_type: knn_regressor
+        - element_type: pipe_line_aggregation
+          element_alias: decision_tree_regressor_4_features
+          elements:
+            - element_type: select_k_best
+              score_func_name: decision_tree_regressor
+              k: 4
+            - element_type: decision_tree_regressor
+              max_depth: 3
+        - element_type: mean_predictor
+        - element_type: most_frequent
+
+  - element_type: feature_engine_rfe
+    threshold: 0.000001
+    model_config:
+      element_type: catboost_classifier # gradient_boosting_classifier
+final_step:
+  element_type: optuna_model_optimizer
+  model_name: nn
+  n_trials: 5
+  storage_type: sqlite
+

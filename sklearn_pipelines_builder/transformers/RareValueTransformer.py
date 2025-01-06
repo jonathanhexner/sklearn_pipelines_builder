@@ -1,9 +1,9 @@
 import pandas as pd
-from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn_pipelines_builder.infrastructure.BaseConfigurableTransformer import BaseConfigurableTransformer
 from sklearn_pipelines_builder.utils.logger import logger
 
-class RareValueTransformer(BaseEstimator, TransformerMixin):
-    def __init__(self, config):
+class RareValueTransformer(BaseConfigurableTransformer):
+    def __init__(self, config={}):
         """
         Initialize the transformer with a configuration dictionary.
 
@@ -12,13 +12,13 @@ class RareValueTransformer(BaseEstimator, TransformerMixin):
             - "threshold": Minimum percentage frequency for common values (default: 0.01).
             - "placeholder": The value to replace rare or unseen values with (default: "Rare").
         """
+        super().__init__(config)
         self.threshold = config.get("threshold", 0.01)
         self.placeholder = config.get("placeholder", "Rare")
         self.common_values_ = {}
-        self.config = config
         self.string_columns_ = None
 
-    def fit(self, X, y=None):
+    def fit(self, X, y=None):  # pylint: disable=unused-argument
         """
         Identify common (non-rare) values for each string column based on the threshold.
 

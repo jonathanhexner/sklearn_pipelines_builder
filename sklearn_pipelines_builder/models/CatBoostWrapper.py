@@ -1,14 +1,16 @@
 import numpy as np
-from sklearn.base import BaseEstimator, TransformerMixin
-from catboost import CatBoostClassifier, Pool
+from catboost import Pool
+from sklearn_pipelines_builder.infrastructure.BaseConfigurableTransformer import BaseConfigurableTransformer
+from sklearn_pipelines_builder.models.CatBoostModelFactory import CatBoostModelFactory
 
 
-class CatBoostWrapper(BaseEstimator, TransformerMixin):
+class CatBoostWrapper(BaseConfigurableTransformer):
     def __init__(self, config):
         self.config = config
         self.model = None
-        self.model_params = dict(iterations=500, verbose=False)
-        self.model_params.update(config.get("model_params", {}))
+        self.model_config = dict(iterations=500, verbose=False)
+        self.model_config.update(config.get("model_config", {}))
+        self._model_type = self.config.get('element_type', 'catboost_regressor')
         self.string_features = []
         self.classes_ = []
         self.feature_importances_ = None
@@ -16,10 +18,10 @@ class CatBoostWrapper(BaseEstimator, TransformerMixin):
         self.importance_type = config.get('importance_type', 'LossFunctionChange')
 
     def fit(self, X, y):
-        # Update cat_features in model_params based on dynamically identified features
+        # Update cat_features in model_config based on dynamically identified features
         self.string_features = list(X.select_dtypes(include='object').columns)
-        self.model_params['cat_features'] = self.string_features
-        self.model = CatBoostClassifier(**self.model_params)
+        self.model_config['cat_features'] = self.string_features
+        self.model = CatBoostModelFactory.create(self._model_type, **self.model_config)
         self.model.fit(X, y)
         self.classes_ = np.unique(y)
         train_pool = Pool(X, label=y, feature_names=list(X.columns))

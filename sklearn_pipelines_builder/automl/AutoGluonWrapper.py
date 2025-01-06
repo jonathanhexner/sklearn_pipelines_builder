@@ -1,12 +1,12 @@
 import logging
 import os
 import pandas as pd
-from sklearn.base import BaseEstimator, TransformerMixin
 from autogluon.tabular import TabularPredictor
 
 from sklearn_pipelines_builder.utils.logger import logger
 from sklearn_pipelines_builder.SingletonContainer import SingleContainer
 from sklearn_pipelines_builder.infrastructure.Config import Config
+from sklearn_pipelines_builder.infrastructure.BaseConfigurableTransformer import BaseConfigurableTransformer
 
 global_config = Config()
 
@@ -20,7 +20,7 @@ class RedirectHandler(logging.Handler):
     def emit(self, record):
         logger.handle(record)  # Redirect to your custom logger
 
-class AutoGluonWrapper(BaseEstimator, TransformerMixin):
+class AutoGluonWrapper(BaseConfigurableTransformer):
     """
     Wrapper for AutoGluon TabularPredictor to make it compatible with Scikit-learn pipelines.
 
@@ -34,7 +34,7 @@ class AutoGluonWrapper(BaseEstimator, TransformerMixin):
         Parameters:
         - config (dict): Configuration dictionary for AutoGluon.
         """
-        self.config = config or {}
+        super().__init__(config)
         self.time_limit = self.config.get("time_limit", 60)  # Default to 60 seconds
         self.presets = self.config.get("presets", "medium_quality_faster_train")
         self._auto_gluon_config = {
