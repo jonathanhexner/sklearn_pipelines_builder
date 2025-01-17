@@ -1,5 +1,6 @@
 from sklearn.base import BaseEstimator, ClassifierMixin
 
+
 class ThresholdingWrapper(BaseEstimator, ClassifierMixin):
     def __init__(self, model, threshold=0.5):
         """
@@ -23,3 +24,8 @@ class ThresholdingWrapper(BaseEstimator, ClassifierMixin):
     def predict_proba(self, X):
         # Return probabilities for compatibility
         return self.model.predict(X)
+
+    @property
+    def classes_(self):
+        # Delegate to the wrapped estimator
+        return self.model.classes_
