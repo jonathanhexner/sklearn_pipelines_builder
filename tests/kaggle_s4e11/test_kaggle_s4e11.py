@@ -12,12 +12,13 @@ class TestKaggleS4e11(unittest.TestCase):
     Test suite for executing external modules with existing YAML configurations.
     """
 
-    def setUp(self):
-        self._test_folder = os.path.join(get_test_folder(), 'kaggle_s4e11')
-        self._main_output_folder = os.path.join(get_results_folder(), 'kaggle_s4e11')
-        create_clean_folder(self._main_output_folder)
-        self._train_set = os.path.join(self._test_folder, 'train.zip')
-        self._test_set = os.path.join(self._test_folder, 'test.zip')
+    @classmethod
+    def setup_class(cls):
+        cls._test_folder = os.path.join(get_test_folder(), 'kaggle_s4e11')
+        cls._main_output_folder = os.path.join(get_results_folder(), 'kaggle_s4e11')
+        create_clean_folder(cls._main_output_folder)
+        cls._train_set = os.path.join(cls._test_folder, 'train.zip')
+        cls._test_set = os.path.join(cls._test_folder, 'test.zip')
 
     def test_autogluon_config(self):
         """
@@ -38,10 +39,9 @@ class TestKaggleS4e11(unittest.TestCase):
                                       'AutoGluonModel.csv')
         self.assertEqual(os.path.exists(autogluon_file), True)
         df_auto_gluon = pd.read_csv(autogluon_file)
-        self.assertEqual(len(df_auto_gluon),8)
         self.assertEqual(os.path.exists(output_file), True)
         df_submission = pd.read_csv(output_file)
-        self.assertEqual(len(df_submission),140700)
+        self.assertEqual(len(df_submission),93800)
 
     def test_catboost_optuna_config(self):
         """

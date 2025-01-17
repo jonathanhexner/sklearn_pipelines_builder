@@ -12,13 +12,13 @@ class TestKaggleS4e10(unittest.TestCase):
     Test suite for executing external modules with existing YAML configurations.
     """
 
-    def setUp(self):
-        self._test_folder = os.path.join(get_test_folder(), 'kaggle_s4e10')
-        self._main_output_folder = os.path.join(get_results_folder(), 'kaggle_s4e10')
-        create_clean_folder(self._main_output_folder)
-        self._train_set = os.path.join(self._test_folder, 'train.zip')
-        self._test_set = os.path.join(self._test_folder, 'test.zip')
-
+    @classmethod
+    def setup_class(cls):
+        cls._test_folder = os.path.join(get_test_folder(), 'kaggle_s4e10')
+        cls._main_output_folder = os.path.join(get_results_folder(), 'kaggle_s4e10')
+        create_clean_folder(cls._main_output_folder)
+        cls._train_set = os.path.join(cls._test_folder, 'train.zip')
+        cls._test_set = os.path.join(cls._test_folder, 'test.zip')
     def test_autogluon_config(self):
         """
         Test execution with a valid configuration file.
