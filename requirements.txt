@@ -1,4 +1,4 @@
-blis==0.7.8
+blis
 scikit-learn
 pandas
 tensorflow

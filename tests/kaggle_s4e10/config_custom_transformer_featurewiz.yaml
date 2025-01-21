@@ -17,7 +17,7 @@ pipe_line_steps:
     columns: id
   - element_type: label_encoder
   - element_type: multi_column_imputer
-    actual_imputer_config: 
+    actual_imputer_config:
       element_type: select_best_imputer
       imputation_methods:
         - element_type: pipe_line_aggregation
@@ -26,7 +26,7 @@ pipe_line_steps:
             - element_type: select_k_best
               score_func_name: decision_tree_regressor
               k: 4
-            - element_type: knn_regressor            
+            - element_type: knn_regressor
         - element_type: pipe_line_aggregation
           element_alias: decision_tree_regressor_4_features
           elements:
@@ -34,7 +34,7 @@ pipe_line_steps:
               score_func_name: decision_tree_regressor
               k: 4
             - element_type: decision_tree_regressor
-              max_depth: 3            
+              max_depth: 3
         - element_type: mean_predictor
         - element_type: most_frequent
   - element_type: featurewiz
@@ -46,8 +46,6 @@ pipe_line_steps:
       element_type: catboost_classifier # gradient_boosting_classifier
 final_step:
   element_type: optuna_model_optimizer
-  model_name: catboost
+  model_name: catboost_classifier
   n_trials: 5
   storage_type: sqlite
-  
-    

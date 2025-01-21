@@ -40,6 +40,7 @@ class OptunaWrapper(BaseConfigurableTransformer):
         self.best_params_ = None
         self.best_model_ = None
         self.storage = None
+        self.classes_ = None
         self.storage_type = config.get('storage_type')
         if self.storage_type == 'sqlite':
             self.storage = f"sqlite:///{os.path.join(global_config.get('output_folder'), 'OptunaStuday.db')}"
@@ -97,6 +98,12 @@ class OptunaWrapper(BaseConfigurableTransformer):
         self.best_model_ = objective.train_best_model(params, X, y)
         mlflow.log_metric("best_cv_score", study.best_value)
         logger.info("Best CV score: .2%f", study.best_value)
+
+        if hasattr(self.best_model_, "classes_"):
+            self.classes_ = self.best_model_.classes_
+        else:
+            self.classes_ = sorted(pd.Series(y).unique())  # Ensure consistent class ordering for classification
+
         return self
 
     def transform(self, X):

@@ -50,6 +50,7 @@ class AutoGluonWrapper(BaseConfigurableTransformer):
         }
         self.label_column = self._auto_gluon_config['label']
         self.predictor = None
+        self.classes_ = None
 
     def fit(self, X, y=None):
         """
@@ -82,7 +83,12 @@ class AutoGluonWrapper(BaseConfigurableTransformer):
             global_config.output_folder, global_config.run_name, 'AutoGluonModel.csv'
         )
         leaderboard.to_csv(leaderboard_path, index=False)
+        # Extract and set the class labels
 
+        if self._auto_gluon_config.get("problem_type") in ["binary", "multiclass"]:
+            self.classes_ = list(self.predictor.class_labels)
+        else:
+            self.classes_ = None  # For regression tasks, there are no class labels
         return self
 
     def transform(self, X):
