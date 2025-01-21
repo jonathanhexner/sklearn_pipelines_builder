@@ -2,6 +2,7 @@ import copy
 import os
 import optuna
 import mlflow
+import pandas as pd
 from optuna.pruners import MedianPruner, HyperbandPruner, NopPruner
 from sklearn_pipelines_builder.infrastructure.BaseConfigurableTransformer import BaseConfigurableTransformer
 from sklearn_pipelines_builder.infrastructure.Config import Config
