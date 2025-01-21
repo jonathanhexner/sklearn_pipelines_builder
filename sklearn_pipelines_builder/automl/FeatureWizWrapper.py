@@ -17,10 +17,13 @@ class FeatureWizWrapper(BaseConfigurableTransformer):
         super().__init__(config)
         self.target = self.config.get("target", SingleContainer.response)
         self.corr_limit = self.config.get("corr_limit", 0.70)
-        self.feature_engg = self.config.get("feature_engg", None)
+        self.feature_engg = self.config.get("feature_engg", ['groupby', 'target', 'interactions'])
         self.verbose = self.config.get("verbose", 1)
+        self.imbalanced = self.config.get('imbalanced', False)
+        self.category_encoders = config.get('category_encoders', 'auto')
         self.selected_features = []
         self.feature_wiz = None
+
 
     def fit(self, X, y=None):
         """
@@ -47,10 +50,9 @@ class FeatureWizWrapper(BaseConfigurableTransformer):
         for handler in logger.handlers:
             featurewiz_logger.addHandler(handler)
 
-        self.feature_wiz = FeatureWiz(feature_engg=['groupby', 'target', 'interactions'], nrows=None,
-                                      transform_target=True, scalers="std",
-                                      category_encoders="auto", add_missing=False, verbose=0, imbalanced=False,
-                                      corr_limit=self.corr_limit,
+        self.feature_wiz = FeatureWiz(feature_engg=self.feature_engg, nrows=None,
+                                      scalers="std", category_encoders=self.category_encoders, add_missing=False,
+                                      verbose=self.verbose, imbalanced=self.imbalanced, corr_limit=self.corr_limit,
                                       ae_options={})
         self.feature_wiz.fit(X, y)
         logger.info("Featurewiz selected features: %s", self.feature_wiz.features)
