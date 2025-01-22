@@ -51,7 +51,7 @@ class FeatureWizWrapper(BaseConfigurableTransformer):
             featurewiz_logger.addHandler(handler)
 
         self.feature_wiz = FeatureWiz(feature_engg=self.feature_engg, nrows=None,
-                                      scalers="std", category_encoders=self.category_encoders, add_missing=False,
+                                      category_encoders=self.category_encoders, add_missing=False,
                                       verbose=self.verbose, imbalanced=self.imbalanced, corr_limit=self.corr_limit,
                                       ae_options={})
         self.feature_wiz.fit(X, y)
