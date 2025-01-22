@@ -52,8 +52,8 @@ class FeatureWizWrapper(BaseConfigurableTransformer):
 
         self.feature_wiz = FeatureWiz(feature_engg=self.feature_engg, nrows=None,
                                       category_encoders=self.category_encoders, add_missing=False,
-                                      verbose=self.verbose, imbalanced=self.imbalanced, corr_limit=self.corr_limit,
-                                      ae_options={})
+                                      verbose=self.verbose, corr_limit=self.corr_limit,
+                                      )
         self.feature_wiz.fit(X, y)
         logger.info("Featurewiz selected features: %s", self.feature_wiz.features)
 
