@@ -17,7 +17,7 @@ class FeatureWizWrapper(BaseConfigurableTransformer):
         super().__init__(config)
         self.target = self.config.get("target", SingleContainer.response)
         self.corr_limit = self.config.get("corr_limit", 0.70)
-        self.feature_engg = self.config.get("feature_engg", ['groupby', 'target', 'interactions'])
+        self.feature_engg = self.config.get("feature_engg", ['interactions'])
         self.verbose = self.config.get("verbose", 1)
         self.imbalanced = self.config.get('imbalanced', False)
         self.category_encoders = config.get('category_encoders', 'auto')
@@ -54,7 +54,7 @@ class FeatureWizWrapper(BaseConfigurableTransformer):
                                       category_encoders=self.category_encoders, add_missing=False,
                                       verbose=self.verbose, corr_limit=self.corr_limit,
                                       )
-        self.feature_wiz.fit(X, y)
+        self.feature_wiz = self.feature_wiz.fit(X, y)
         logger.info("Featurewiz selected features: %s", self.feature_wiz.features)
 
         # Log the results to MLflow
