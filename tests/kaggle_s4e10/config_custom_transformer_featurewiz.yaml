@@ -39,7 +39,7 @@ pipe_line_steps:
         - element_type: most_frequent
   - element_type: featurewiz
     corr_limit: 0.7
-    feature_engg: ["groupby",'target','interactions']
+    feature_engg: ['interactions']
   - element_type: feature_engine_rfe
     threshold: 0.000001
     model_config:
