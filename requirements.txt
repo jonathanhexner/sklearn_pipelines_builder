@@ -11,6 +11,6 @@ autogluon
 autofeat
 BorutaShap
 mlflow
-featurewiz
+# featurewiz
 pytest
 optuna

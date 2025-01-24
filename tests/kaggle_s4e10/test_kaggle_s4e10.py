@@ -60,22 +60,22 @@ class TestKaggleS4e10(unittest.TestCase):
         df_submission = pd.read_csv(output_file)
         self.assertEqual(len(df_submission),39098)
 
-    def test_feature_wiz_config(self):
-        """
-        Test execution with a valid configuration file.
-        """
-        config_path = os.path.join(self._test_folder, 'config_custom_transformer_featurewiz.yaml')
-        output_folder = os.path.join(self._main_output_folder, 'featurewiz')
-        output_file = os.path.join(output_folder, 'submission_file.csv')
-        create_clean_folder(output_folder)
-        config_override = {'output_folder': output_folder,
-                          'train_set': self._train_set,
-                          'test_set': self._test_set,
-                          'output_file': output_file}
-        main(config_path, config_override)
-
-        df_submission = pd.read_csv(output_file)
-        self.assertEqual(len(df_submission),39098)
+    # def test_feature_wiz_config(self):
+    #     """
+    #     Test execution with a valid configuration file.
+    #     """
+    #     config_path = os.path.join(self._test_folder, 'config_custom_transformer_featurewiz.yaml')
+    #     output_folder = os.path.join(self._main_output_folder, 'featurewiz')
+    #     output_file = os.path.join(output_folder, 'submission_file.csv')
+    #     create_clean_folder(output_folder)
+    #     config_override = {'output_folder': output_folder,
+    #                       'train_set': self._train_set,
+    #                       'test_set': self._test_set,
+    #                       'output_file': output_file}
+    #     main(config_path, config_override)
+    #
+    #     df_submission = pd.read_csv(output_file)
+    #     self.assertEqual(len(df_submission),39098)
 
     def test_nn_optuna_config(self):
         """
