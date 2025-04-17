@@ -2,7 +2,8 @@
 class ObjectiveFactory:
     @staticmethod
     def create_objective(config):
-        model_name = config.get("model_name")
+        model_config = config.get('model_config')
+        model_name = model_config.get("element_type")
         # TODO: add this
         # if model_name == "xgboost":
         #     return XGBoostObjective(config)

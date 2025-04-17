@@ -1,0 +1,70 @@
+experiment_name: playground-series-s4e11
+run_name: custom_transformer_feature_engine_rfe
+output_folder: D:\Kaggle\rohlik-sales-forecasting-challenge-v2\debug
+train_set: D:\Kaggle\rohlik-sales-forecasting-challenge-v2\sales_train.csv
+test_set: 
+submission_set: D:\Kaggle\rohlik-sales-forecasting-challenge-v2\sales_test.csv
+response: sales
+weight_column: weight
+scoring: weighted_mae
+prediction_type: regression
+output_file: custom_transformer_accuracy.csv
+output_columns: 
+meta_training_columns: ['date', 'weight']
+store_every_step: True
+pipe_line_steps:
+  - element_type: date_features
+    date_column: date
+  - element_type: rohlik_sales_transformer
+    min_date: 2023-03-01
+    calendar_file: D:\Kaggle\rohlik-sales-forecasting-challenge-v2\calendar.csv
+    inventory_file: D:\Kaggle\rohlik-sales-forecasting-challenge-v2\inventory.csv
+    weights_file: D:\Kaggle\rohlik-sales-forecasting-challenge-v2\test_weights.csv
+  - element_type: holiday_date_features
+  - element_type: lag_feature_transformer
+    delays:
+      - months: 1
+      - months: 2
+      - months: 3
+    aggregations:
+      - groupby_cols: ["date", "warehouse", 'L4_category_name_en', "name_base"]
+        target_col: "sales"
+        agg_func: sum
+        output_col: sales_sum_by_date_warehouse_name_base
+      - groupby_cols: ["date", "warehouse", 'L4_category_name_en', "name_base"]
+        target_col: "sell_price_main"
+        agg_func: mean
+        output_col: sell_price_sum_by_date_warehouse_name_base
+      - groupby_cols: ["date", "warehouse", "L4_category_name_en"]
+        target_col: "sales"
+        agg_func: sum
+        output_col: sales_sum_by_date_warehouse_L1_category_name_en
+      - groupby_cols: ["date", "warehouse", "L4_category_name_en"]
+        target_col: "sell_price_main"
+        agg_func: mean
+        output_col: sell_price_sum_by_date_warehouse_category
+  - element_type: rfecv_transformer
+    threshold: 0.025
+    max_iterations: 1
+    cv:
+      split_type: date_based
+      date_column: date
+      threshold_dates: ['2024-04-01']
+    train_data_split:
+      split_type: date_based
+      date_column: date
+      threshold_dates: ['2023-09-01']
+    model_config:
+      element_type: catboost_regressor # gradient_boosting_classifier
+final_step:
+  element_type: optuna_model_optimizer
+  cv:
+    split_type: date_based
+    date_column: date
+    threshold_dates: ['2024-04-01']  
+  model_config:
+    element_type: catboost_regressor # gradient_boosting_classifier
+  n_trials: 5
+  storage_type: sqlite
+
+

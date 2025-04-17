@@ -24,7 +24,7 @@ def collect_info(X_all: pd.DataFrame):
     null_string = list(mean_null_string[mean_null_string > 0].keys())
     print(null_string)
 
-
+    SingleContainer.meta_training_columns = copy.deepcopy(config.get('meta_training_columns', []))
     SingleContainer.string_features = remove_from_list(string_features, SingleContainer.columns_to_drop)
     SingleContainer.numeric_features = remove_from_list(numeric_features, SingleContainer.columns_to_drop)
     SingleContainer.mean_null_numeric_features = mean_null_numeric
@@ -33,4 +33,6 @@ def collect_info(X_all: pd.DataFrame):
     SingleContainer.null_numeric_features = remove_from_list(null_numeric, SingleContainer.columns_to_drop)
     SingleContainer.original_columns = copy.deepcopy(original_columns)
     SingleContainer.all_features = copy.deepcopy(all_features)
+    SingleContainer.final_features = copy.deepcopy(all_features)
+
     SingleContainer.response = response

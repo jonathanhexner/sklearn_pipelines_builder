@@ -2,6 +2,12 @@ import os
 import shutil
 import pandas as pd
 
+from sklearn_pipelines_builder.SingletonContainer import SingleContainer
+from sklearn_pipelines_builder.infrastructure.Config import Config
+from sklearn_pipelines_builder.utils.custom_scorer import get_custom_scorer
+
+global_config = Config()
+
 
 def create_clean_folder(folder_path):
     """
@@ -30,6 +36,8 @@ def remove_from_list(list1, list2):
 
 
 def convert_str_to_list(columns):
+    if columns is None:
+        return []
     if (columns is not None) and (type(columns) == str):
         return columns.split(",")
     return columns
@@ -54,3 +62,12 @@ def load_dataset(file_path, **kwargs):
         raise ValueError("Unsupported file format. Please provide a CSV or Parquet file.")
 
 
+def get_features(X: pd.DataFrame):
+    return [col for col in X.columns if col not in SingleContainer.meta_training_columns]
+
+def eval_scores(X, y, weight, final_step):
+    scores = {}
+    for eval_scoring in Config().get('eval_scorings'):
+        scorer = get_custom_scorer(eval_scoring)
+        scores[eval_scoring] = scorer(final_step, X, y, sample_weight=weight)
+    return scores

@@ -21,5 +21,7 @@ class SingleContainer:
     test_score = None
     cv_score = None
     scoring = None
-
+    weight_column = None
+    meta_training_columns = None
+    final_features = []
 

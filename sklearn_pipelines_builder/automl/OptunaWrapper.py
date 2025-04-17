@@ -8,6 +8,7 @@ from sklearn_pipelines_builder.infrastructure.BaseConfigurableTransformer import
 from sklearn_pipelines_builder.infrastructure.Config import Config
 from sklearn_pipelines_builder.utils.logger import logger
 from sklearn_pipelines_builder.optuna_objectives.ObjectiveFactory import ObjectiveFactory
+from sklearn_pipelines_builder.utils.basic_utils import get_features
 
 
 global_config = Config()
@@ -46,6 +47,10 @@ class OptunaWrapper(BaseConfigurableTransformer):
         if self.storage_type == 'sqlite':
             self.storage = f"sqlite:///{os.path.join(global_config.get('output_folder'), 'OptunaStuday.db')}"
 
+    @property
+    def model(self):
+        return self.best_model_
+
     def _get_pruner(self, pruner_name, pruner_config):
         """
         Create an Optuna pruner based on the name and configuration.
@@ -73,8 +78,9 @@ class OptunaWrapper(BaseConfigurableTransformer):
         - X: Features.
         - y: Target.
         """
-        logger.info("Starting Optuna optimization for %s", self.model_name)
-        mlflow.log_param("model_name", self.model_name)
+        model_config = self.config.get('model_config')
+        logger.info("Starting Optuna optimization for %s", model_config.get('element_type'))
+        mlflow.log_param("model_name", model_config.get('element_type'))
 
         # Create the objective using the factory
         objective = ObjectiveFactory.create_objective(self.config)
@@ -92,7 +98,7 @@ class OptunaWrapper(BaseConfigurableTransformer):
             df.to_csv(os.path.join(global_config.get('output_folder'), 'OptunaStudy.csv'), index=False)
         # Save the best parameters and model
         self.best_params_ = study.best_params
-        mlflow.log_params(self.best_params_)
+        # mlflow.log_params(self.best_params_)
         logger.info("Best parameters found: %s", self.best_params_)
         params = {'verbose': False}
         params.update(copy.deepcopy(self.best_params_))
@@ -107,6 +113,9 @@ class OptunaWrapper(BaseConfigurableTransformer):
 
         return self
 
+    def get_feature_importance(self):
+        return self.best_model_.get_feature_importance()
+
     def transform(self, X):
         """
         Transform input data using the best model.
@@ -117,9 +126,7 @@ class OptunaWrapper(BaseConfigurableTransformer):
         Returns:
         - Predictions: Predictions from the best model.
         """
-        if self.best_model_ is None:
-            raise ValueError("Model is not fitted yet. Call `fit` first.")
-        return self.best_model_.predict(X)
+        return X[get_features(X)]
 
     def predict(self, X):
         """
@@ -133,4 +140,4 @@ class OptunaWrapper(BaseConfigurableTransformer):
         """
         if self.best_model_ is None:
             raise ValueError("Model is not fitted yet. Call `fit` first.")
-        return self.best_model_.predict(X)
+        return self.best_model_.predict(X[get_features(X)])

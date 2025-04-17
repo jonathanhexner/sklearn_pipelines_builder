@@ -4,6 +4,9 @@ class BaseConfigurableTransformer(BaseEstimator, TransformerMixin):
     """
     A base transformer class that enforces the use of a configuration dictionary.
     """
+
+    meta_model = None
+
     def __init__(self, config=None):
         self.config = config or {}
         self.model_config = self.config.get('model_config', {})

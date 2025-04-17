@@ -48,4 +48,4 @@ class DropRareValuesTransformer(BaseConfigurableTransformer):
         for col in self.columns:
             rare_values = self.value_counts_[col][self.value_counts_[col] < self.threshold].index
             X_transformed = X_transformed[~X_transformed[col].isin(rare_values)]
-        return X_transformed.reset_index(drop=True)
+        return X_transformed

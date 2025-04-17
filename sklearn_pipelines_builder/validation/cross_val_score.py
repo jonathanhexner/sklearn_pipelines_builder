@@ -1,6 +1,6 @@
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import roc_auc_score
-from sklearn.metrics import get_scorer
+from sklearn_pipelines_builder.utils.custom_scorer import get_custom_scorer
 from sklearn_pipelines_builder.infrastructure.Config import Config
 import numpy as np
 
@@ -9,14 +9,14 @@ def cross_val_score(pipeline, X, y, cv, scoring):
     scores = []
 
     for train_index, val_index in cv.split(X, y):
-        print(train_index, val_index)
-        X_train, X_val = X.iloc[train_index], X.iloc[val_index]
-        y_train, y_val = y.iloc[train_index], y.iloc[val_index]
+        # print(train_index, val_index)
+        X_train, X_val = X.loc[train_index], X.loc[val_index]
+        y_train, y_val = y.loc[train_index], y.loc[val_index]
 
         # Fit the pipeline on the training fold
         pipeline.fit(X_train, y_train)
 
-        scorer = get_scorer(Config().scoring)
+        scorer = get_custom_scorer(Config().scoring)
         scores.append(scorer(pipeline, X_val, y_val))
 
         # # Get predictions on the validation fold

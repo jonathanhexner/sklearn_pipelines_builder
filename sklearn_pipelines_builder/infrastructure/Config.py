@@ -1,5 +1,7 @@
 import yaml
 import os
+from sklearn_pipelines_builder.utils.logger import logger
+from sklearn_pipelines_builder.utils.folder_utils import get_unique_folder
 
 class Config:
     _instance = None  # Class attribute to hold the singleton instance
@@ -8,8 +10,8 @@ class Config:
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance._config = {}
+            cls._output_folder = None
         return cls._instance
-
 
     def load_config(self, config_path, config_override):
         """Load the YAML config file."""
@@ -20,15 +22,21 @@ class Config:
             self._config = yaml.safe_load(file)
         if config_override is not None:
             self._config.update(config_override)
-        print(self._config['output_folder'])
+        self._output_folder = get_unique_folder(self._config.get('output_folder'))
 
     def get(self, key, default=None)->{}:
         """Retrieve a configuration value, with optional default."""
         return self._config.get(key, default)
 
+    def set(self, key, value):
+        """Retrieve a configuration value, with optional default."""
+        logger.info("Setting %s to %s", str(key), str(value))
+        self._config[key] = value
+
+
     @property
     def output_folder(self)->str:
-        return self._config.get('output_folder')
+        return self._output_folder
 
     @property
     def imputation_config(self)->{}:
@@ -37,6 +45,10 @@ class Config:
     @property
     def scoring(self):
         return self._config.get('scoring')
+
+    @property
+    def eval_scorings(self):
+        return self._config.get('eval_scorings')
 
     @property
     def hyper_parameter_optimization(self)->{}:
