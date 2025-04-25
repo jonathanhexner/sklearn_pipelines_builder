@@ -1,0 +1,61 @@
+experiment_name: rohlik-sales-v2_wo_early_stopping
+run_name: rohlik-sales-20_75
+output_folder: D:\Kaggle\rohlik-sales-forecasting-challenge-v2\rohlik-sales-20_75
+train_set:
+  file_name: D:\Kaggle\rohlik-sales-forecasting-challenge-v2\sales_train.csv
+  pipe_line_steps:
+    - element_type: dataframe_operations
+      operations:
+      - operation_name: cast
+        operation_config: {'date': "datetime64[ns]"}
+      - operation_name: query
+        operation_config: "(date>='2020-08-01') & (date<'2024-06-01')"
+      - operation_name: drop
+        operation_config: ['availability']
+      - operation_name: drop_null_rows
+        operation_config: ['sales']
+
+test_set:
+  file_name: D:\Kaggle\rohlik-sales-forecasting-challenge-v2\sales_train.csv
+  pipe_line_steps:
+    - element_type: dataframe_operations
+      operations:
+        - operation_name: cast
+          operation_config: {'date': "datetime64[ns]"}
+        - operation_name: query
+          operation_config: "(date>='2024-06-01')"
+        - operation_name: drop
+          operation_config: ['availability']
+
+submission_set:
+  file_name: D:\Kaggle\rohlik-sales-forecasting-challenge-v2\sales_test.csv
+response: sales
+weight_column: weight
+scoring: mse
+eval_scorings: ['mse', 'mae']
+prediction_type: regression
+output_file: submission.csv
+output_columns:
+meta_training_columns: ['date', 'weight']
+store_every_step: True
+pipe_line_steps:
+  - element_type: rohlik_sales_20_75
+    merge_weights: True
+    calendar_file: D:\Kaggle\rohlik-sales-forecasting-challenge-v2\calendar.csv
+    inventory_file: D:\Kaggle\rohlik-sales-forecasting-challenge-v2\inventory.csv
+    weights_file: D:\Kaggle\rohlik-sales-forecasting-challenge-v2\test_weights.csv
+
+  - element_type: robsut_scaler_transformer
+  - element_type: validation_score_feature_selector
+    cv:
+      split_type: date_based
+      date_column: date
+      threshold_dates: ['2024-05-23', '2024-05-01', '2024-03-01']
+    model_config:
+      element_type: lightgbm_regressor # gradient_boosting_classifier
+  - element_type: dataframe_operations
+    operations:
+    - operation_name: drop
+      operation_config: ['date']
+final_step:
+    element_type: rohlik_light_gbm

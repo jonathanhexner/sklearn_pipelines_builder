@@ -252,7 +252,7 @@ if __name__ == "__main__":
         type=str,
         help="Path to the YAML configuration file.",
         required=False,
-        default=r"C:\Projects\sklearn_pipelines_builder_github\tests\rohlik_sales\rohlik-sales-20_75.yaml"
+        default=r"C:\Projects\sklearn_pipelines_builder_github\tests\rohlik_sales\rohlik-sales-20_75_feature_selector_nn.yaml"
     )
 
     # Parse the arguments

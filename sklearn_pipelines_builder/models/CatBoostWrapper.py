@@ -35,7 +35,7 @@ class CatBoostWrapper(BaseConfigurableTransformer):
     def fit(self, X, y):
         # Update cat_features in model_config based on dynamically identified features
         feature_names = get_features(X)
-        self.string_features = list(X[feature_names].select_dtypes(include='object').columns)
+        self.string_features = list(X[feature_names].select_dtypes(include=['object', 'category']).columns)
         self.model_config['cat_features'] = self.string_features
         self.model = CatBoostModelFactory.create(self._model_type, **self.model_config)
         self.model.fit(X[feature_names], y)

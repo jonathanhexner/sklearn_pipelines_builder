@@ -63,7 +63,7 @@ class CatBoostObjective(BaseObjective):
     def _setup_model(self, X, params):
         params.update(dict(verbose=False))
         feature_names = get_features(X)
-        string_features = list(X[feature_names].select_dtypes(include='object').columns)
+        string_features = list(X[feature_names].select_dtypes(include=['object', 'category']).columns)
         params.update({'cat_features': string_features})
         params.update(dict(eval_metric = scorer_dict[global_config.scoring]))
         model = CatBoostModelFactory.create(self.model_config.get('element_type'), **params)
@@ -83,7 +83,7 @@ class CatBoostObjective(BaseObjective):
         """
         model = self._setup_model(X, best_params)
         feature_names = get_features(X)
-        string_features = list(X[feature_names].select_dtypes(include='object').columns)
+        string_features = list(X[feature_names].select_dtypes(include=['object', 'category']).columns)
         train_pool = cb.Pool(X[feature_names], label=y, cat_features=string_features)
         if self.weight_column is not None:
             train_pool = cb.Pool(X[feature_names], label=y, weight=X[self.weight_column], cat_features=string_features)

@@ -63,7 +63,7 @@ def load_dataset(file_path, **kwargs):
 
 
 def get_features(X: pd.DataFrame):
-    return [col for col in X.columns if col not in SingleContainer.meta_training_columns]
+    return [col for col in X.columns if col not in SingleContainer.meta_training_columns + ['response_copy']]
 
 def eval_scores(X, y, weight, final_step):
     scores = {}
