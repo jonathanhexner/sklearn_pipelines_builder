@@ -23,10 +23,15 @@ class RohlikSales20_75(BaseEstimator, TransformerMixin):
         """
 
         self.lemmatizer = WordNetLemmatizer()
+        self.folder = config.get('folder')
         self.calendar_file = config.get('calendar_file')
         self.inventory_file = config.get('inventory_file')
         self.weights_file = config.get('weights_file')
         self.merge_weights = config.get("merge_weights", True)
+        if self.folder:
+            self.calendar_file = os.path.join(self.folder, self.calendar_file)
+            self.inventory_file = os.path.join(self.folder, self.inventory_file)
+            self.weights_file = os.path.join(self.folder, self.weights_file)
         self.df_calendar = pd.read_csv(self.calendar_file)
         self.df_calendar['date'] = pd.to_datetime(self.df_calendar['date'])
         self.process_holidays()

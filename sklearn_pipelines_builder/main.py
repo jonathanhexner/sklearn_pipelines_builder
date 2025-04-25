@@ -53,6 +53,9 @@ def store_datasets(step, X_train, X_test, y_train, y_test, response_col=None):
 
 def setup_dateset(dataset_config={}):
     dataset_file = dataset_config.get('file_name')
+    dataset_folder = dataset_config.get('folder')
+    if dataset_folder is not None:
+        dataset_file = os.path.join(dataset_folder, dataset_file)
     dataset = load_dataset(dataset_file)
     pipeline_steps = dataset_config.get('pipe_line_steps', [])
     for n, pipe_line_config in enumerate(pipeline_steps):
