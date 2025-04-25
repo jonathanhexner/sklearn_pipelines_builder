@@ -1,8 +1,9 @@
 experiment_name: rohlik-sales-v2_wo_early_stopping
 run_name: rohlik-sales-20_75
-output_folder: D:\Kaggle\rohlik-sales-forecasting-challenge-v2\rohlik-sales-20_75
+input_folder: &input_folder /kaggle/input/rohlnikv2
+output_folder: &output_folder /kaggle/working
 train_set:
-  file_name: D:\Kaggle\rohlik-sales-forecasting-challenge-v2\sales_train.csv
+  file_name: *input_folder/sales_train.csv
   pipe_line_steps:
     - element_type: dataframe_operations
       operations:
@@ -16,7 +17,7 @@ train_set:
         operation_config: ['sales']
 
 test_set:
-  file_name: D:\Kaggle\rohlik-sales-forecasting-challenge-v2\sales_train.csv
+  file_name: *input_folder/sales_train.csv
   pipe_line_steps:
     - element_type: dataframe_operations
       operations:
@@ -28,7 +29,7 @@ test_set:
           operation_config: ['availability']
 
 submission_set:
-  file_name: D:\Kaggle\rohlik-sales-forecasting-challenge-v2\sales_test.csv
+  file_name: *output_folder/sales_test.csv
 response: sales
 weight_column: weight
 scoring: mse
@@ -41,9 +42,9 @@ store_every_step: True
 pipe_line_steps:
   - element_type: rohlik_sales_20_75
     merge_weights: True
-    calendar_file: D:\Kaggle\rohlik-sales-forecasting-challenge-v2\calendar.csv
-    inventory_file: D:\Kaggle\rohlik-sales-forecasting-challenge-v2\inventory.csv
-    weights_file: D:\Kaggle\rohlik-sales-forecasting-challenge-v2\test_weights.csv
+    calendar_file: *input_folder/calendar.csv
+    inventory_file: *input_folder/inventory.csv
+    weights_file: *input_folder/test_weights.csv
 
   - element_type: robsut_scaler_transformer
   - element_type: validation_score_feature_selector
