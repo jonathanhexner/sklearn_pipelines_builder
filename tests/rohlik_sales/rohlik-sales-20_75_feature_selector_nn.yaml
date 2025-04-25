@@ -1,7 +1,7 @@
 experiment_name: rohlik-sales-v2_wo_early_stopping
 run_name: rohlik-sales-20_75
 input_folder: &input_folder /kaggle/input/rohlnikv2
-output_folder: &output_folder /kaggle/working
+output_folder: &output_folder /kaggle/working/rohlnikv2
 train_set:
   folder: *input_folder
   file_name: sales_train.csv
