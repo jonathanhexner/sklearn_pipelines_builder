@@ -99,15 +99,27 @@ class NeuralNetWrapper(BaseConfigurableTransformer):
         self.scaler = StandardScaler()
         self.classes_ = []
 
+    # def _prepare_data(self, X, y):
+    #     dataset = LazyDataset(
+    #         X, y,
+    #         self.numeric_cols,
+    #         self.categorical_cols,
+    #         self.scaler,
+    #         self.label_encoders
+    #     )
+    #     return DataLoader(dataset, batch_size=self.batch_size, shuffle=self.shuffle, num_workers=0)
+
     def _prepare_data(self, X, y):
-        dataset = LazyDataset(
-            X, y,
-            self.numeric_cols,
-            self.categorical_cols,
-            self.scaler,
-            self.label_encoders
-        )
-        return DataLoader(dataset, batch_size=self.batch_size, shuffle=self.shuffle, num_workers=0)
+        X_num = self.scaler.transform(X[self.numeric_cols]).astype(np.float32)
+        X_cat = [le.transform(X[col]) for col, le in self.label_encoders.items()]
+        y_vals = y.astype(np.float32).values
+
+        X_num_tensor = torch.from_numpy(X_num)
+        X_cat_tensors = [torch.from_numpy(col.astype(np.int64)) for col in X_cat]
+        y_tensor = torch.from_numpy(y_vals)
+
+        dataset = TensorDataset(X_num_tensor, *X_cat_tensors, y_tensor)
+        return DataLoader(dataset, batch_size=self.batch_size, shuffle=False, pin_memory=True, num_workers=2)
 
     def fit(self, X, y):
         self.feature_names = get_features(X)
@@ -129,6 +141,8 @@ class NeuralNetWrapper(BaseConfigurableTransformer):
         X[self.numeric_cols] = X[self.numeric_cols].astype(np.float32)
         gc.collect()
         log_memory("After casting to float32")
+
+
         loader = self._prepare_data(X, y)
         input_dim = len(self.numeric_cols)
         log_memory("Before model creation")

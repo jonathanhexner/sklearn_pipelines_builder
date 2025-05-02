@@ -11,7 +11,7 @@ train_set:
       - operation_name: cast
         operation_config: {'date': "datetime64[ns]"}
       - operation_name: query
-        operation_config: "(date>='2020-08-01') & (date<'2024-06-01')"
+        operation_config: "(date>='2021-08-01') & (date<'2024-06-01')"
       - operation_name: drop
         operation_config: ['availability']
       - operation_name: drop_null_rows
@@ -64,7 +64,7 @@ pipe_line_steps:
         epochs: 2
         patience: 2
         num_threads: 4
-        hidden_layers: [128, 64, 32, 16]
+        hidden_layers: [64, 32, 16]
   - element_type: dataframe_operations
     operations:
     - operation_name: drop
