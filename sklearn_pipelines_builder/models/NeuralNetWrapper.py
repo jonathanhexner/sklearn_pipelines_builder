@@ -92,9 +92,9 @@ class NeuralNetWrapper(BaseConfigurableTransformer):
             embedding_dim = min(32, int(math.ceil(len(le.classes_) ** 0.25)))
             # embedding_dim = self.model_config.get("embedding_dim", max(self.min_embedding_dim, min(50, (len(le.classes_) + 1) // 2)))
             self.category_sizes.append((len(le.classes_), embedding_dim))
-
+        log_memory("Before scaler fit")
         self.scaler.fit(X[self.numeric_cols])
-
+        log_memory("After scaler fit")
         # Prepare data
         loader = self._prepare_data(X, y)
         input_dim = len(self.numeric_cols)
@@ -116,7 +116,7 @@ class NeuralNetWrapper(BaseConfigurableTransformer):
         for epoch in range(self.epochs):
             model.train()
             total_loss = 0
-            for batch in loader:
+            for n_batch, batch in enumerate(loader):
                 log_memory(f"Memory usage during training epoch {epoch} batch {batch}")
                 xb, *cat_inputs, yb = batch
                 cat_inputs = [c.to(self.device) for c in cat_inputs]
