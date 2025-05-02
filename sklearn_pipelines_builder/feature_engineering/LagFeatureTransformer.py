@@ -59,10 +59,10 @@ class LagFeatureTransformer(BaseEstimator, TransformerMixin):
 
             # Perform groupby and aggregation
             agg_df = (
-                X.groupby(groupby_cols, as_index=False)
+                X.groupby(groupby_cols)
                 .agg({target_col: agg_func})
                 .rename(columns={target_col: output_col})
-            )
+            ).reset_index()
             aggregated_results.append(agg_df)
 
         # Merge all aggregated results into one DataFrame
@@ -98,10 +98,10 @@ class LagFeatureTransformer(BaseEstimator, TransformerMixin):
         for delay_tup in self.delays:
             delay_date_column = self.date_column+f'_offset_{list(delay_tup.keys())[0]}_{list(delay_tup.values())[0]}'
             # Apply delay to the date column
-            X[delay_date_column] = pd.to_datetime(X[self.date_column]) + pd.DateOffset(**delay_tup)
+            X[delay_date_column] = pd.to_datetime(X[self.date_column].astype(str)) + pd.DateOffset(**delay_tup)
             aggregated_features = aggregated_features.rename(columns={latest_date_column: delay_date_column})
             latest_date_column = delay_date_column
-            aggregated_features[delay_date_column] = pd.to_datetime(aggregated_features[delay_date_column])
+            aggregated_features[delay_date_column] = pd.to_datetime(aggregated_features[delay_date_column].astype(str))
             # aggregated_features[self.date_column] = pd.to_datetime(aggregated_features[self.date_column]) + \
             #                                         pd.DateOffset(**delay_tup)
 

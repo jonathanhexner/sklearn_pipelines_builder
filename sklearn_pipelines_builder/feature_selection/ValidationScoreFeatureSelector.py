@@ -1,3 +1,4 @@
+import json
 import pandas as pd
 import numpy as np
 from copy import deepcopy
@@ -123,7 +124,27 @@ class ValidationScoreFeatureSelector(BaseFeatureSelector):
         self.dropped_features_ = []
         self.results_ = []
 
+
+    def _load_summary(self, summary_path):
+        if not os.path.exists(summary_path):
+            raise FileNotFoundError(f"Feature selection summary file not found: {summary_path}")
+
+        df_summary = pd.read_csv(summary_path)
+
+        selected = df_summary[df_summary['selected'] == True]['feature'].tolist()
+        if selected is None:
+            raise ValueError("Missing 'selected_features' key in summary file.")
+
+        if not isinstance(selected, list):
+            raise TypeError(f"'selected_features' must be a list, got {type(selected)}")
+
+        return selected
+
     def fit(self, X, y):
+        if "feature_selection_summary" in self.config:
+            self.selected_features_ = self._load_summary(self.config["feature_selection_summary"])
+            return self
+
         feature_names = get_features(X)
 
         evaluator = EvaluationStrategyFactory.create(

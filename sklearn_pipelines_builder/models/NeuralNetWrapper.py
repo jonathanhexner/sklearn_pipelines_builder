@@ -1,4 +1,5 @@
 import numpy as np
+import math
 import pandas as pd
 import torch
 import os
@@ -54,6 +55,7 @@ class NeuralNetWrapper(BaseConfigurableTransformer):
         self.config = config
         self.model_config = config.get("model_config", {})
         self.min_embedding_dim = self.model_config.get("min_embedding_dim", 20)
+        self.shuffle = self.model_config.get('shuffle', False)
         self.batch_size = self.model_config.get("batch_size", 128)
         self.epochs = self.model_config.get("epochs", 50)
         self.patience = self.model_config.get("patience", 5)
@@ -87,7 +89,8 @@ class NeuralNetWrapper(BaseConfigurableTransformer):
             le = LabelEncoder()
             le.fit(X[col])
             self.label_encoders[col] = le
-            embedding_dim = self.model_config.get("embedding_dim", max(self.min_embedding_dim, min(50, (len(le.classes_) + 1) // 2)))
+            embedding_dim = min(32, int(math.ceil(len(le.classes_) ** 0.25)))
+            # embedding_dim = self.model_config.get("embedding_dim", max(self.min_embedding_dim, min(50, (len(le.classes_) + 1) // 2)))
             self.category_sizes.append((len(le.classes_), embedding_dim))
 
         self.scaler.fit(X[self.numeric_cols])

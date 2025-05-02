@@ -196,9 +196,12 @@ class RohlikSales20_75(BaseEstimator, TransformerMixin):
         X = RohlikSales20_75.calc_discounts(X)
         cols = X.columns
         obj_cols = list(cols[X.dtypes == 'object'])
-        X[obj_cols] = X[obj_cols].fillna('0')
+        for obj_col in obj_cols:
+            X[obj_col] = X[obj_col].fillna('0')
         other_cols = list(set(X.columns)-set(obj_cols))
-        X[other_cols] = X[other_cols].fillna(0)
+        for other_col in other_cols:
+            X[other_col] = X[other_col].fillna(0)
+
         if self.merge_weights:
             X = X.merge(self.df_weights, on='unique_id', how='left')
 

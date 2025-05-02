@@ -153,8 +153,8 @@ def run_pipeline():
 
         df_submission_transformed = pipeline.transform(df_submission_transformed)
         collect_info(X_train_transformed)
-        logger.info("Done element number %s --- %s --- Size of train set %s, %s", n, element_name,
-                    len(X_train_transformed), len(y))
+        logger.info("Done element number %s --- %s --- Size of train set cols=%s, rows=%s, memory=%s", n, element_name,
+                    len(X_train_transformed.columns), len(X_train_transformed), str(X_train_transformed.memory_usage().sum()/2**10))
         logger.info("Length of submission: %s",len(df_submission_transformed))
 
         if global_config.get("store_every_step"):
