@@ -159,15 +159,17 @@ class NeuralNetWrapper(BaseConfigurableTransformer):
         patience_counter = 0
 
         from sklearn_pipelines_builder.utils.logger import logger
-
         for epoch in range(self.epochs):
             model.train()
+
             total_loss = 0
             for n_batch, batch in enumerate(loader):
                 if n_batch % 5000 == 0:
                     logger.info(f"Epoch {epoch + 1}/{self.epochs} - Batch {n_batch}/{len(loader)}")
                     log_memory(f"Memory usage during training epoch {epoch} batch {n_batch}")
                 xb, *cat_inputs, yb = batch
+                logger.info(f"xb: {xb.device}, model: {next(model.parameters()).device}")
+
                 cat_inputs = [c.to(self.device) for c in cat_inputs]
                 xb = xb.to(self.device)
                 yb = yb.to(self.device)
