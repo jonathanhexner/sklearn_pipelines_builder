@@ -14,7 +14,7 @@ from torch.distributed.pipelining import pipeline
 from sklearn_pipelines_builder.infrastructure.ElementFactory import ElementFactory
 from sklearn_pipelines_builder.SingletonContainer import SingleContainer
 from sklearn_pipelines_builder.infrastructure.Config import Config
-from sklearn_pipelines_builder.utils.basic_utils import load_dataset, convert_str_to_list, get_features
+from sklearn_pipelines_builder.utils.basic_utils import load_dataset, convert_str_to_list, log_memory
 from sklearn_pipelines_builder.utils.collect_info import collect_info
 from sklearn_pipelines_builder.utils.log_info import log_info
 from sklearn_pipelines_builder.utils.logger import logger, LoggerSingleton
@@ -91,7 +91,7 @@ def run_pipeline():
     df_test = setup_dateset(global_config.get('test_set'))
 
     collect_info(df_train)
-
+    log_memory('Initial memory after setup_dateset')
     # df_train = df_train.dropna(subset=['sales']).reset_index(drop=True)
     # df_train = df_train[pd.to_datetime(df_train['date']) > pd.to_datetime('2023-01-01')].reset_index(drop=True)
 
@@ -135,6 +135,7 @@ def run_pipeline():
     # y_test = y_test.copy(True).reset_index(drop=True)
 
     log_info('_initial')
+    log_memory('Memory after setup_dateset')
     SingleContainer.meta_training_columns = list(set(SingleContainer.meta_training_columns+['response_copy']))
     # Process pipeline steps
     for n, pipe_line_config in enumerate(pipe_line_steps_config):
@@ -154,9 +155,9 @@ def run_pipeline():
         df_submission_transformed = pipeline.transform(df_submission_transformed)
         collect_info(X_train_transformed)
         logger.info("Done element number %s --- %s --- Size of train set cols=%s, rows=%s, memory=%s", n, element_name,
-                    len(X_train_transformed.columns), len(X_train_transformed), str(X_train_transformed.memory_usage().sum()/2**10))
+                    len(X_train_transformed.columns), len(X_train_transformed), str(X_train_transformed.memory_usage().sum()/1e9))
         logger.info("Length of submission: %s",len(df_submission_transformed))
-
+        log_memory(f'Memory after pipeline step {n}, element_name {element_name}')
         if global_config.get("store_every_step"):
             store_datasets(n, X_train_transformed, X_test_transformed, y, y_test)
 

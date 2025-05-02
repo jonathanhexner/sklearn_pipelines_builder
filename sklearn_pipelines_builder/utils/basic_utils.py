@@ -1,10 +1,11 @@
 import os
 import shutil
 import pandas as pd
-
+import psutil
 from sklearn_pipelines_builder.SingletonContainer import SingleContainer
 from sklearn_pipelines_builder.infrastructure.Config import Config
 from sklearn_pipelines_builder.utils.custom_scorer import get_custom_scorer
+from sklearn_pipelines_builder.utils.logger import logger
 
 global_config = Config()
 
@@ -71,3 +72,8 @@ def eval_scores(X, y, weight, final_step):
         scorer = get_custom_scorer(eval_scoring)
         scores[eval_scoring] = scorer(final_step, X, y, sample_weight=weight)
     return scores
+
+
+def log_memory(tag=""):
+    mem = psutil.virtual_memory()
+    logger.info(f"{tag} — Memory used: {mem.used / 1e9:.2f} GB / {mem.total / 1e9:.2f} GB")
