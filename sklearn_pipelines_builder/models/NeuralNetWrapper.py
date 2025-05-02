@@ -150,7 +150,9 @@ class NeuralNetWrapper(BaseConfigurableTransformer):
             model.train()
             total_loss = 0
             for n_batch, batch in enumerate(loader):
-                log_memory(f"Memory usage during training epoch {epoch} batch {n_batch}")
+                if n_batch % 100 == 0:
+                    logger.info(f"Epoch {epoch + 1}/{self.epochs} - Batch {n_batch}/{len(loader)}")
+                    log_memory(f"Memory usage during training epoch {epoch} batch {n_batch}")
                 xb, *cat_inputs, yb = batch
                 cat_inputs = [c.to(self.device) for c in cat_inputs]
                 xb = xb.to(self.device)
