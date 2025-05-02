@@ -9,6 +9,7 @@ from sklearn_pipelines_builder.infrastructure.ElementFactory import ElementFacto
 from sklearn_pipelines_builder.utils.custom_scorer import get_custom_scorer
 from sklearn_pipelines_builder.infrastructure.Config import Config
 from sklearn_pipelines_builder.utils.logger import logger
+from sklearn_pipelines_builder.utils.basic_utils import log_memory
 from sklearn_pipelines_builder.feature_selection.BaseFeatureSelector import BaseFeatureSelector
 import os
 
@@ -36,14 +37,17 @@ class RetrainEvaluationStrategy(BaseEvaluationStrategy):
     def _evaluate(self, X, y):
         weight_column = Config().get("weight_column", None)
         val_scores = []
-        for train_idx, val_idx in self.cv.split(X, y):
+        logger.info(f"Evaluating model")
+        for n, (train_idx, val_idx) in enumerate(self.cv.split(X, y)):
             X_train, X_val = X.iloc[train_idx], X.iloc[val_idx]
             y_train, y_val = y.iloc[train_idx], y.iloc[val_idx]
             sample_weights_train = X_train[weight_column] if weight_column is not None else None
             sample_weights_val = X_val[weight_column] if weight_column is not None else None
-
+            log_memory(f"Before model copy split {n} ")
             model = deepcopy(self.model_template)
+            log_memory(f"After model copy split {n} ")
             model.fit(X_train, y_train)
+            log_memory(f"After model train split {n}")
             y_val_pred = model.predict(X_val)
             score = self.scoring._score_func(y_val, y_val_pred, sample_weight=sample_weights_val)
             val_scores.append(score)
@@ -78,7 +82,7 @@ class ShuffleEvaluationStrategy(BaseEvaluationStrategy):
         weight_column = Config().get("weight_column", None)
 
         for fold_idx, (_, val_idx) in enumerate(self.cv.split(X, y)):
-            X_val = X.iloc[val_idx].copy()
+            X_val = X.iloc[val_idx]
             y_val = y.iloc[val_idx]
             sample_weights_val = X_val[weight_column] if weight_column is not None else None
 
@@ -153,10 +157,11 @@ class ValidationScoreFeatureSelector(BaseFeatureSelector):
             cv=self.cv_splitter,
             scoring=self.scoring
         )
-
+        logger.info(f"Using evaluation strategy: {self.eval_strategy}")
+        log_memory("Before evaluation baseline")
         baseline_score = evaluator.evaluate_baseline(X, y)
         logger.info(f"Baseline validation score with all features: {baseline_score:.5f}")
-
+        log_memory("After evaluation baseline")
         for idx, feature in enumerate(feature_names):
             score = evaluator.evaluate_without_feature(X.drop(columns=self.dropped_features_), y, feature)
             delta = score - baseline_score

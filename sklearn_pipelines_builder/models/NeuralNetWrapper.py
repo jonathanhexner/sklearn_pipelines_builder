@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader, TensorDataset
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn_pipelines_builder.infrastructure.BaseConfigurableTransformer import BaseConfigurableTransformer
 from sklearn_pipelines_builder.utils.basic_utils import get_features
-from sklearn_pipelines_builder.infrastructure.Config import Config
+from sklearn_pipelines_builder.utils.basic_utils import log_memory
 
 
 class SimpleFeedforwardNNWithEmbeddings(nn.Module):
@@ -98,7 +98,7 @@ class NeuralNetWrapper(BaseConfigurableTransformer):
         # Prepare data
         loader = self._prepare_data(X, y)
         input_dim = len(self.numeric_cols)
-
+        log_memory("Before model creation")
         model = SimpleFeedforwardNNWithEmbeddings({
             "input_dim": input_dim,
             "embedding_dims": self.category_sizes,
@@ -106,7 +106,7 @@ class NeuralNetWrapper(BaseConfigurableTransformer):
             "dropout": self.model_config.get("dropout", 0.2),
             "batchnorm": self.model_config.get("batchnorm", True)
         }).to(self.device)
-
+        log_memory("After model creation")
         optimizer = torch.optim.Adam(model.parameters(), lr=self.learning_rate)
         best_loss = float("inf")
         patience_counter = 0
