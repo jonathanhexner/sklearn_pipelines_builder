@@ -60,11 +60,11 @@ pipe_line_steps:
       element_type: neural_net_regressor # gradient_boosting_classifier
       model_config:
         shuffle: False
-        batch_size: 64
+        batch_size: 128
         epochs: 5
         patience: 2
         num_threads: 4
-        hidden_layers: [64, 32, 16]
+        hidden_layers: [128, 64, 32, 16]
   - element_type: dataframe_operations
     operations:
     - operation_name: drop
