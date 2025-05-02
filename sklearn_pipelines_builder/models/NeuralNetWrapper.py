@@ -29,7 +29,7 @@ class LazyDataset(Dataset):
 
     def __getitem__(self, idx):
         row = self.X.iloc[idx]
-        x_num = self.scaler.transform([row[self.numeric_cols]])[0].astype('float32')
+        x_num = self.scaler.transform(pd.DataFrame([row[self.numeric_cols]]))[0]
         x_cat = [self.label_encoders[col].transform([row[col]])[0] for col in self.categorical_cols]
         y_val = self.y.iloc[idx]
         return (
@@ -150,7 +150,7 @@ class NeuralNetWrapper(BaseConfigurableTransformer):
             model.train()
             total_loss = 0
             for n_batch, batch in enumerate(loader):
-                log_memory(f"Memory usage during training epoch {epoch} batch {batch}")
+                log_memory(f"Memory usage during training epoch {epoch} batch {n_batch}")
                 xb, *cat_inputs, yb = batch
                 cat_inputs = [c.to(self.device) for c in cat_inputs]
                 xb = xb.to(self.device)
